@@ -1,0 +1,379 @@
+/* Compact, user-paced character dialogue.
+   The 3D lesson remains readable in the upper centre while both young
+   engineers stand waist-up in the lower corners. No idle hover or pulse. */
+
+/* ---------------- Opening problem conversation ---------------- */
+
+#startScreen .landing-copy {
+  top: clamp(54px, 9vh, 92px);
+  left: clamp(32px, 4.4vw, 76px);
+  z-index: 8;
+  width: min(440px, 42vw);
+  min-width: 320px;
+}
+
+#startScreen .landing-copy h1 {
+  font-size: clamp(2.9rem, 5.6vw, 6.1rem);
+}
+
+/* The spoken card carries the problem, so duplicate supporting copy is gone. */
+#startScreen .landing-lede,
+#startScreen .landing-system,
+#startScreen .landing-outcomes {
+  display: none;
+}
+
+.landing-cast {
+  position: absolute;
+  inset: 0;
+  z-index: 7;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.landing-cast img {
+  position: absolute;
+  bottom: -46dvh;
+  width: auto;
+  height: 95dvh;
+  max-width: 36vw;
+  object-fit: contain;
+  object-position: top center;
+  opacity: .56;
+  transform: translateY(18px) scale(.98);
+  transform-origin: bottom center;
+  filter: saturate(.68) brightness(.78) drop-shadow(0 18px 30px rgba(0,0,0,.58));
+  transition: opacity .24s ease, transform .28s ease, filter .24s ease;
+}
+
+.landing-aisha { left: clamp(-70px, -3.5vw, -24px); }
+.landing-arjun { right: clamp(-70px, -3.5vw, -24px); }
+
+#startScreen:not(.intro-arjun) .landing-aisha,
+#startScreen.intro-arjun .landing-arjun {
+  opacity: 1;
+  transform: scale(1.025);
+  filter: saturate(1) brightness(1.05) drop-shadow(0 18px 34px rgba(0,0,0,.64));
+}
+
+.landing-dialogue {
+  position: absolute;
+  left: 50%;
+  bottom: max(16px, env(safe-area-inset-bottom));
+  z-index: 9;
+  width: min(660px, 52vw);
+  transform: translateX(-50%);
+}
+
+.landing-dialogue-copy {
+  position: relative;
+  padding: 16px 19px 17px;
+  border: 1px solid rgba(141,222,248,.46);
+  clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 14px 100%, 0 calc(100% - 14px));
+  background: linear-gradient(135deg, rgba(21,71,119,.97), rgba(4,17,31,.96));
+  box-shadow: inset 5px 0 0 #f7941d, 0 18px 46px rgba(0,0,0,.48);
+}
+
+.landing-dialogue-copy::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 4px;
+  background: linear-gradient(90deg, #f7941d, #2784dd, #8ddef8);
+}
+
+.landing-dialogue-copy > p:first-child {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0 0 9px;
+  padding-top: 3px;
+}
+
+.landing-dialogue-copy b {
+  color: #ffd089;
+  font: 700 1rem/1 "Chakra Petch", sans-serif;
+  text-transform: uppercase;
+}
+
+.landing-dialogue-copy span {
+  color: #8ddef8;
+  font: 700 .68rem/1 "Chakra Petch", sans-serif;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+#landingDialogue {
+  margin: 0;
+  color: #fff;
+  font: 600 clamp(1rem, 1.24vw, 1.16rem)/1.46 "Bricolage Grotesque", "IBM Plex Sans", sans-serif;
+  text-wrap: balance;
+}
+
+.landing-dialogue .landing-cta-wrap {
+  width: min(330px, 100%);
+  margin: 10px auto 0;
+  opacity: 1;
+  transform: none;
+  animation: none;
+}
+
+.landing-dialogue button.big.landing-cta {
+  min-height: 50px;
+  padding: 11px 22px;
+}
+
+/* ---------------- Build and story conversations ---------------- */
+
+#storyVeil,
+body.dialogue-active #storyVeil {
+  z-index: 70;
+  background: radial-gradient(circle at 50% 34%, transparent 0 33%, rgba(2,10,19,.18) 100%);
+  backdrop-filter: blur(1.25px) saturate(.92);
+  -webkit-backdrop-filter: blur(1.25px) saturate(.92);
+}
+
+#narratorDock {
+  z-index: 72;
+  display: block;
+  overflow: hidden;
+  padding: 0;
+  pointer-events: none;
+}
+
+#narratorDock .narrator-person,
+#story .story-body {
+  position: fixed;
+  top: auto;
+  bottom: -46dvh;
+  width: auto;
+  height: 95dvh;
+  max-width: 36vw;
+  max-height: none;
+  object-fit: contain;
+  object-position: top center;
+  opacity: 0;
+  transform: translateY(22px) scale(.98);
+  transform-origin: bottom center;
+  filter: saturate(.65) brightness(.74) drop-shadow(0 18px 28px rgba(0,0,0,.58));
+  -webkit-mask-image: none;
+  mask-image: none;
+  animation: none !important;
+  transition: opacity .24s ease, transform .32s cubic-bezier(.2,.8,.3,1), filter .24s ease;
+  pointer-events: none;
+}
+
+#narratorDock .narrator-aisha,
+#story #storyAisha { left: clamp(-70px, -3.5vw, -24px); }
+
+#narratorDock .narrator-arjun,
+#story #storyArjun { right: clamp(-70px, -3.5vw, -24px); }
+
+/* Both characters stay present; speaker emphasis provides the talking feel. */
+#narratorDock.show-aisha .narrator-person,
+#narratorDock.show-arjun .narrator-person,
+#story:not(.hidden) .story-body {
+  opacity: .58;
+  transform: none;
+}
+
+#narratorDock.show-aisha .narrator-aisha,
+#narratorDock.show-arjun .narrator-arjun,
+#story.speaker-aisha #storyAisha,
+#story.speaker-arjun #storyArjun,
+#story.speaker-team .story-body {
+  opacity: 1;
+  transform: scale(1.025);
+  filter: saturate(1) brightness(1.06) drop-shadow(0 18px 32px rgba(0,0,0,.64));
+}
+
+#narratorDock .narrator-copy,
+#narratorDock.show-aisha .narrator-copy,
+#narratorDock.show-arjun .narrator-copy,
+#story .story-bubble {
+  position: fixed;
+  inset: auto auto max(16px, env(safe-area-inset-bottom)) 50%;
+  z-index: 5;
+  box-sizing: border-box;
+  display: block;
+  width: min(660px, 52vw);
+  height: auto;
+  max-width: none;
+  max-height: min(42dvh, 320px);
+  overflow: auto;
+  margin: 0;
+  padding: 18px 20px 17px;
+  opacity: 1;
+  transform: translate(-50%, 0);
+  pointer-events: auto;
+  border: 1px solid rgba(141,222,248,.48) !important;
+  border-radius: 0 !important;
+  clip-path: polygon(0 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 14px 100%, 0 calc(100% - 14px)) !important;
+  background: linear-gradient(135deg, rgba(21,71,119,.97), rgba(4,17,31,.96)) !important;
+  box-shadow: inset 5px 0 0 #f7941d, 0 18px 48px rgba(0,0,0,.46) !important;
+}
+
+#narratorDock .narrator-copy::before,
+#story .story-bubble::before {
+  content: "" !important;
+  position: absolute;
+  inset: 0 0 auto !important;
+  width: auto !important;
+  height: 4px !important;
+  background: linear-gradient(90deg, #f7941d, #2784dd, #8ddef8) !important;
+}
+
+#narratorDock .narrator-copy::after { display: none !important; }
+
+#narratorDock .narrator-copy > p:first-child,
+#story .story-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(141,222,248,.2);
+}
+
+#narratorDock .narrator-copy b,
+#story .story-meta b {
+  color: #ffd089;
+  font: 700 clamp(.92rem, 1.15vw, 1.08rem)/1 "Chakra Petch", sans-serif;
+  text-transform: uppercase;
+}
+
+#narratorDock .narrator-copy span,
+#story .story-meta span {
+  margin-left: auto;
+  color: #8ddef8;
+  font: 700 clamp(.62rem, .74vw, .72rem)/1 "Chakra Petch", sans-serif;
+  letter-spacing: .08em;
+}
+
+#narratorDock #voiceToggle {
+  min-height: 36px;
+  padding: 7px 10px;
+}
+
+#narratorDock #narratorText,
+#story #storyText {
+  max-width: 48ch;
+  margin: 13px 0;
+  color: #fff;
+  font: 600 clamp(1rem, 1.32vw, 1.2rem)/1.48 "Bricolage Grotesque", "IBM Plex Sans", sans-serif;
+  text-wrap: balance;
+}
+
+#narratorDock #dialogueNext {
+  display: block;
+  width: auto;
+  min-width: 190px;
+  min-height: 44px;
+  margin: 0 0 0 auto;
+}
+
+#story .story-actions {
+  margin-top: 10px;
+}
+
+/* ---------------- Responsive framing ---------------- */
+
+@media (max-width: 700px) {
+  #startScreen .landing-copy {
+    top: 24px;
+    right: 72px;
+    bottom: auto;
+    left: 20px;
+    width: auto;
+    min-width: 0;
+  }
+
+  #startScreen .landing-copy h1 {
+    font-size: clamp(2.35rem, 11vw, 3.4rem);
+  }
+
+  .landing-cast img,
+  #narratorDock .narrator-person,
+  #story .story-body {
+    bottom: -50vw;
+    width: 70vw;
+    height: auto;
+    max-width: none;
+  }
+
+  .landing-aisha,
+  #narratorDock .narrator-aisha,
+  #story #storyAisha { left: -22vw; }
+
+  .landing-arjun,
+  #narratorDock .narrator-arjun,
+  #story #storyArjun { right: -22vw; }
+
+  .landing-dialogue,
+  #narratorDock .narrator-copy,
+  #narratorDock.show-aisha .narrator-copy,
+  #narratorDock.show-arjun .narrator-copy,
+  #story .story-bubble {
+    bottom: max(10px, env(safe-area-inset-bottom));
+    width: calc(100vw - 20px);
+    max-height: 45dvh;
+    padding: 14px;
+  }
+
+  .landing-dialogue {
+    max-height: none;
+    padding: 0;
+  }
+
+  #narratorDock #narratorText,
+  #story #storyText {
+    font-size: .96rem;
+    line-height: 1.4;
+  }
+
+  #narratorDock #dialogueNext {
+    width: 100%;
+  }
+}
+
+@media (max-height: 620px) and (min-width: 701px) {
+  #startScreen .landing-copy { top: 40px; }
+  #startScreen .landing-copy h1 { font-size: clamp(2.55rem, 5.2vw, 4.1rem); }
+
+  .landing-cast img,
+  #narratorDock .narrator-person,
+  #story .story-body {
+    bottom: -46dvh;
+    height: 95dvh;
+  }
+
+  .landing-dialogue,
+  #narratorDock .narrator-copy,
+  #narratorDock.show-aisha .narrator-copy,
+  #narratorDock.show-arjun .narrator-copy,
+  #story .story-bubble {
+    width: min(620px, 55vw);
+    max-height: 46dvh;
+    padding: 14px 16px 13px;
+  }
+
+  .landing-dialogue {
+    max-height: none;
+    padding: 0;
+  }
+
+  #landingDialogue,
+  #narratorDock #narratorText,
+  #story #storyText {
+    font-size: .94rem;
+    line-height: 1.38;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing-cast img,
+  #narratorDock .narrator-person,
+  #story .story-body {
+    transition-duration: .01ms !important;
+  }
+}

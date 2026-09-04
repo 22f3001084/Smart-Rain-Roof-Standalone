@@ -1,0 +1,504 @@
+/* SKAI engineering presentation layer for the self-contained 3D activity. */
+
+:root {
+  --accent: #f7941d;
+  --wet: #65d9ff;
+  --ok: #58d29a;
+  --panel: #0b2545;
+  --panel-line: rgba(101,217,255,.24);
+}
+
+body {
+  background: transparent;
+}
+
+#startScreen {
+  justify-content: flex-start;
+  padding: clamp(64px, 7vh, 84px) clamp(24px, 5vw, 88px) clamp(24px, 4vh, 48px);
+  background:
+    linear-gradient(90deg, rgba(4,15,28,.94) 0%, rgba(4,15,28,.88) 38%, rgba(4,15,28,.28) 62%, rgba(4,15,28,.04) 100%);
+}
+
+.start-card {
+  width: min(530px, 44vw);
+  max-width: none;
+  margin: 0;
+  padding: clamp(22px, 2.5vw, 36px);
+  text-align: left;
+  border: 1px solid rgba(101,217,255,.22);
+  border-radius: clamp(20px, 2vw, 28px);
+  background: linear-gradient(145deg, rgba(11,37,69,.9), rgba(5,18,33,.9));
+  box-shadow: 0 26px 70px rgba(0,0,0,.42);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.start-card::before {
+  width: 84px;
+  margin: 0 0 16px;
+  background: linear-gradient(90deg, var(--accent), transparent);
+}
+
+.eyebrow {
+  color: #ffb552;
+  font-size: clamp(.66rem, .8vw, .78rem);
+  font-weight: 700;
+}
+
+.start-card h1 {
+  max-width: 500px;
+  margin: 12px 0 10px;
+  font-size: clamp(2rem, 4vw, 4rem);
+  line-height: 1.02;
+}
+
+.start-card .tagline {
+  max-width: 470px;
+  margin: 0 0 22px;
+  color: #c9d9e6;
+  font-size: clamp(.82rem, 1.1vw, 1.05rem);
+  line-height: 1.5;
+}
+
+.problem-scene {
+  justify-content: flex-start;
+  margin: 18px 0;
+}
+
+.problem-scene > span:not(.problem-plus) {
+  width: min(144px, 13vw);
+  min-width: 105px;
+  padding: 11px 9px;
+  background: rgba(101,217,255,.07);
+}
+
+button.big {
+  padding: 15px 30px;
+  color: #172434;
+  background: linear-gradient(135deg, #ffbd52, #f7941d);
+  box-shadow: 0 9px 24px rgba(247,148,29,.24);
+}
+
+button.big:hover {
+  box-shadow: 0 12px 30px rgba(247,148,29,.32);
+}
+
+button.primary,
+#dialogueNext,
+#buildContinue,
+.info-hub-actions .primary {
+  color: #10263b;
+  background: linear-gradient(135deg, #ffbd52, #f7941d);
+}
+
+.narrator-copy {
+  border-color: rgba(247,148,29,.58);
+}
+
+#narratorDock.show-aisha .narrator-copy::after {
+  border-left-color: rgba(247,148,29,.58);
+  border-bottom-color: rgba(247,148,29,.58);
+}
+
+#narratorDock.show-arjun .narrator-copy::after {
+  border-top-color: rgba(247,148,29,.58);
+  border-right-color: rgba(247,148,29,.58);
+}
+
+#infoHubButton {
+  top: 72px;
+  border-color: rgba(247,148,29,.72);
+  color: #ffb552;
+}
+
+.info-hub-card {
+  border-color: rgba(247,148,29,.35);
+}
+
+.code-actions .primary {
+  color: #10263b;
+  background: linear-gradient(135deg, #ffbd52, #f7941d);
+}
+
+@media (max-width: 900px) {
+  #startScreen {
+    align-items: center;
+    padding: 58px 24px 24px;
+    background: linear-gradient(90deg, rgba(4,15,28,.9), rgba(4,15,28,.42));
+  }
+  .start-card { width: min(520px, 54vw); padding: 20px; }
+  .problem-scene { margin: 12px 0; }
+}
+
+@media (max-width: 700px) {
+  #startScreen {
+    justify-content: center;
+    padding: 18px;
+    background: rgba(4,15,28,.64);
+  }
+  .start-card { width: min(560px, 92vw); padding: 18px; }
+  .start-card h1 { font-size: clamp(1.75rem, 8vw, 2.5rem); }
+  .problem-scene > span:not(.problem-plus) { width: min(132px, 34vw); }
+  #infoHubButton { top: 14px; }
+}
+
+@media (max-height: 560px) and (min-width: 701px) {
+  #startScreen { padding-top: 48px; }
+  .start-card { width: min(560px, 47vw); padding: 18px 22px; }
+  .start-card::before { display: none; }
+  .start-card h1 { margin: 7px 0; font-size: clamp(1.75rem, 3.5vw, 2.8rem); }
+  .problem-scene { margin: 9px 0; }
+  .problem-scene > span:not(.problem-plus) { padding: 7px; }
+  .start-card .tagline { margin-bottom: 13px; line-height: 1.35; }
+  button.big { padding: 12px 24px; }
+}
+
+/* ========================================================================
+   Electronic & Engineering vector UI
+
+   These shapes reuse the reference board's #154777 -> #2784DD blue family,
+   orange engineering accent, structural rails and clipped vector corners.
+   The 3D canvas remains untouched beneath this presentation layer.
+   ======================================================================== */
+
+:root {
+  --eng-navy: #0b2545;
+  --eng-blue: #154777;
+  --eng-electric: #2784dd;
+  --eng-orange: #f7941d;
+  --eng-line: rgba(141, 222, 248, .42);
+  --eng-cut: polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%);
+  --eng-button-cut: polygon(0 0, calc(100% - 11px) 0, 100% 11px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
+}
+
+body {
+  font-family: Poppins, "IBM Plex Sans", system-ui, sans-serif;
+}
+
+body::before,
+body::after {
+  content: "";
+  position: fixed;
+  z-index: 2;
+  pointer-events: none;
+}
+
+body::before {
+  top: 0;
+  right: 0;
+  width: 29vw;
+  height: 5px;
+  background: linear-gradient(90deg, transparent, rgba(39,132,221,.7), var(--eng-orange));
+}
+
+body::after {
+  right: 16px;
+  bottom: 80px;
+  width: 3px;
+  height: 82px;
+  background: linear-gradient(180deg, var(--eng-orange), rgba(39,132,221,.15));
+}
+
+.start-card,
+.panel,
+.narrator-copy,
+#codePanel,
+.info-hub-card,
+.story-bubble {
+  border-radius: 0 !important;
+  border-color: var(--eng-line) !important;
+  clip-path: var(--eng-cut);
+  background:
+    linear-gradient(135deg, rgba(21,71,119,.98), rgba(11,37,69,.985) 48%, rgba(4,17,31,.985)) !important;
+  box-shadow:
+    inset 4px 0 0 rgba(247,148,29,.92),
+    inset 0 1px 0 rgba(255,255,255,.1),
+    0 24px 60px rgba(0,0,0,.4) !important;
+}
+
+.start-card::after,
+#buildPanel::after,
+.narrator-copy::before,
+#codePanel::before,
+.info-hub-card::before {
+  content: "" !important;
+  position: absolute;
+  top: 0;
+  right: 18px;
+  width: 78px;
+  height: 4px;
+  background: linear-gradient(90deg, var(--eng-electric), var(--eng-orange));
+  opacity: 1;
+  pointer-events: none;
+}
+
+.eyebrow,
+.panel h2,
+.need-label,
+.code-sub,
+.info-hub-kicker,
+.code-attempts,
+#narratorStage {
+  font-family: "Chakra Petch", "IBM Plex Mono", monospace !important;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+
+.start-card h1,
+#stepTitle,
+#codePanel h2,
+#infoHubTitle {
+  font-family: "Chakra Petch", "Bricolage Grotesque", sans-serif !important;
+  letter-spacing: -.025em;
+}
+
+button,
+button.big,
+button.primary,
+#dialogueNext,
+#buildContinue,
+.info-hub-actions button,
+.knob button {
+  border-radius: 0 !important;
+  clip-path: var(--eng-button-cut);
+  border: 1px solid rgba(141,222,248,.38) !important;
+  font-family: "Chakra Petch", Poppins, sans-serif !important;
+  font-weight: 700;
+  letter-spacing: .015em;
+  background: linear-gradient(135deg, rgba(21,71,119,.97), rgba(11,37,69,.98)) !important;
+  color: #eefaff !important;
+  box-shadow: inset 3px 0 0 rgba(39,132,221,.9), 0 8px 18px rgba(0,0,0,.24) !important;
+}
+
+button:hover:not(:disabled) {
+  border-color: rgba(247,148,29,.86) !important;
+  background: linear-gradient(135deg, rgba(39,132,221,.98), rgba(21,71,119,.98)) !important;
+}
+
+button.primary,
+button.big,
+#dialogueNext,
+#buildContinue,
+.info-hub-actions .primary {
+  border-color: #ffbe67 !important;
+  color: #102238 !important;
+  background: linear-gradient(135deg, #ffc267, var(--eng-orange)) !important;
+  box-shadow: inset 4px 0 0 rgba(255,255,255,.3), 0 9px 22px rgba(247,148,29,.25) !important;
+}
+
+button:focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: 3px;
+}
+
+.problem-scene > span:not(.problem-plus),
+.need-list li,
+.info-hub-status > div,
+.hub-proof,
+.code-mission-strip,
+.code-pill {
+  border-radius: 0 !important;
+  clip-path: var(--eng-button-cut);
+  border-color: rgba(141,222,248,.25) !important;
+  background: linear-gradient(135deg, rgba(39,132,221,.13), rgba(11,37,69,.34)) !important;
+}
+
+.step-bar,
+.step-bar > div {
+  border-radius: 0 !important;
+}
+
+.step-bar {
+  height: 7px;
+  border: 1px solid rgba(141,222,248,.22);
+  background: rgba(3,13,24,.55);
+}
+
+.step-bar > div {
+  background: linear-gradient(90deg, var(--eng-orange), #ffd384) !important;
+}
+
+#buildPanel {
+  width: min(390px, calc(100vw - 36px));
+  overflow: hidden;
+}
+
+#stepTitle {
+  white-space: normal;
+  overflow-wrap: break-word;
+  line-height: 1.15;
+}
+
+.need-list {
+  flex-wrap: wrap;
+  overflow: visible !important;
+}
+
+.need-list li {
+  max-width: 100%;
+  white-space: normal;
+}
+
+.narrator-copy::after {
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: var(--eng-navy) !important;
+}
+
+#voiceToggle {
+  box-shadow: none !important;
+}
+
+#codeModal {
+  justify-content: flex-end !important;
+  padding: clamp(18px, 3vw, 42px) !important;
+  background: linear-gradient(90deg, rgba(3,13,24,.04) 0%, rgba(3,13,24,.16) 45%, rgba(3,13,24,.48) 100%) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+body:has(#codeModal:not(.hidden)) #toast {
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+#codePanel {
+  width: min(650px, 58vw) !important;
+  max-height: calc(100vh - 36px);
+}
+
+.codewrap {
+  border-radius: 0 !important;
+  clip-path: var(--eng-cut);
+  border-color: rgba(141,222,248,.25) !important;
+}
+
+.codehead {
+  background: linear-gradient(90deg, rgba(39,132,221,.22), rgba(11,37,69,.68)) !important;
+}
+
+.code-mission-strip {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 12px;
+  margin-top: 10px;
+  padding: 10px 12px;
+  border: 1px solid rgba(141,222,248,.22);
+}
+
+.code-proof-key {
+  margin: 0 !important;
+  padding: 0 !important;
+  border-left: 0 !important;
+}
+
+.code-proof-key strong { color: #ffd384; }
+
+.code-attempts {
+  margin: 0;
+  color: #8ddef8;
+  font-size: .64rem;
+  white-space: nowrap;
+}
+
+.code-pill.coach {
+  color: #ccecff;
+  border-left: 3px solid var(--eng-electric) !important;
+}
+
+.code-pill.coach.unlocked {
+  color: #fff1d7;
+  border-left-color: var(--eng-orange) !important;
+  background: rgba(247,148,29,.13) !important;
+}
+
+#codeReport {
+  max-height: 118px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--eng-electric) rgba(3,13,24,.4);
+}
+
+#infoHubButton {
+  top: max(18px, env(safe-area-inset-top)) !important;
+  right: max(18px, env(safe-area-inset-right)) !important;
+  width: 50px;
+  height: 50px;
+  border-radius: 0 !important;
+  clip-path: polygon(50% 0, 100% 28%, 100% 72%, 50% 100%, 0 72%, 0 28%);
+  border: 0 !important;
+  color: #102238 !important;
+  background: linear-gradient(135deg, #ffd384, var(--eng-orange)) !important;
+  box-shadow: 0 10px 24px rgba(0,0,0,.36) !important;
+}
+
+#infoHubModal {
+  inset: max(78px, calc(env(safe-area-inset-top) + 70px)) max(18px, env(safe-area-inset-right)) auto auto !important;
+  display: block !important;
+  width: min(470px, calc(100vw - 36px));
+  height: auto;
+  padding: 0 !important;
+  background: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  pointer-events: none;
+}
+
+#infoHubModal.hidden { display: none !important; }
+
+.info-hub-card {
+  width: 100%;
+  max-height: calc(100vh - 98px);
+  overflow: auto;
+  pointer-events: auto;
+}
+
+#infoHubClose,
+#codeClose,
+#infoClose {
+  border-radius: 0 !important;
+  clip-path: polygon(0 0, 100% 0, 100% 72%, 72% 100%, 0 100%);
+}
+
+.hub-proof > span {
+  border-radius: 0;
+  clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
+}
+
+@media (max-width: 760px) {
+  #codeModal {
+    align-items: stretch !important;
+    justify-content: stretch !important;
+    padding: 10px !important;
+  }
+  #codePanel { width: 100% !important; max-height: calc(100vh - 20px); }
+  .code-mission-strip { grid-template-columns: 1fr; gap: 5px; }
+  .code-attempts { white-space: normal; }
+  #infoHubModal {
+    top: 68px !important;
+    right: 10px !important;
+    width: min(430px, calc(100vw - 20px));
+  }
+}
+
+@media (max-height: 620px) and (min-width: 761px) {
+  #codeModal { padding: 8px 18px !important; }
+  #codePanel {
+    max-height: calc(100vh - 16px);
+    padding: 11px 16px 12px !important;
+    overflow: hidden;
+  }
+  #codePanel h2 { margin: 0 0 4px; font-size: 1.16rem; }
+  .code-sub { display: none; }
+  .codewrap { margin-top: 3px; }
+  .codehead { padding: 5px 9px !important; }
+  pre.code { padding: 7px 10px !important; font-size: .64rem !important; line-height: 1.3 !important; }
+  #codeReport { max-height: 82px; margin-top: 6px; }
+  .code-pill { margin: 3px 0 !important; padding: 5px 8px !important; font-size: .66rem !important; line-height: 1.25; }
+  .code-mission-strip { margin-top: 6px; padding: 6px 9px; }
+  .code-proof-key { font-size: .66rem !important; line-height: 1.3; }
+  .code-attempts { font-size: .56rem; }
+  .code-actions { margin-top: 6px !important; }
+  .code-actions button { min-height: 36px !important; padding: 7px 12px !important; }
+}

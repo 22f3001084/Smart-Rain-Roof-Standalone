@@ -1,0 +1,19 @@
+THIRD-PARTY NOTICES
+===================
+
+Three.js r160
+Copyright 2010-2023 Three.js Authors
+SPDX-License-Identifier: MIT
+The license notice is retained in smart-rain-roof-game/vendor/three.min.js.
+
+Bundled Google Fonts
+- Bricolage Grotesque
+- Chakra Petch
+- Fredoka One
+- IBM Plex Mono
+- IBM Plex Sans
+- Poppins
+
+These font files are distributed under the SIL Open Font License. Local copies of
+the applicable license text are included in assets/fonts/licenses/.
+

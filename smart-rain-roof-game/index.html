@@ -1,0 +1,332 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Smart Rain Protection House</title>
+<link rel="stylesheet" href="../assets/fonts/local-fonts.css">
+<link rel="stylesheet" href="css/style.css?v=20260903-clean-hub">
+<link rel="stylesheet" href="css/skai-embed.css?v=20260904-vector5">
+<link rel="stylesheet" href="css/landing.css?v=20260904-conversation3">
+<link rel="stylesheet" href="css/conversation.css?v=20260904-waist1">
+</head>
+<body>
+
+<canvas id="stage" aria-label="3D simulation of a rain-sensing automatic clothes protection system"></canvas>
+
+<!-- start screen -->
+<div id="startScreen" class="engineering-landing">
+  <img class="landing-hero" src="../assets/smart-rain-roof-hero-v5.webp"
+       width="1672" height="941" fetchpriority="high"
+       alt="A 3D Smart Rain Roof house with a folding canopy, clothes rack, a rain sensor raised on a short shaped roof mount, grounded wiring and an Arduino control station">
+  <div class="landing-grid" aria-hidden="true"></div>
+
+  <div class="landing-topline" aria-hidden="true">
+    <span></span><span></span><span></span>
+  </div>
+
+  <section class="landing-copy" aria-labelledby="landingTitle">
+    <p class="landing-kicker"><span>Electronic &amp; Engineering</span><b>Interactive build</b></p>
+    <p class="landing-problem-label">The problem</p>
+    <h1 id="landingTitle">SMART<br>RAIN ROOF</h1>
+    <p class="landing-lede">The washing is outside. The rain has arrived. Can an automatic roof protect it in time?</p>
+    <div class="landing-system" aria-label="How the system works">
+      <span><b>01</b>Sense</span><i aria-hidden="true"></i>
+      <span><b>02</b>Think</span><i aria-hidden="true"></i>
+      <span><b>03</b>Cover</span>
+    </div>
+    <p class="landing-outcomes">6 build stages <i></i> code challenge <i></i> working proof</p>
+  </section>
+
+  <aside class="landing-rail" aria-hidden="true">
+    <span class="rail-title">Mission path</span>
+    <div class="rail-track"><i class="done"></i><i></i><i></i><i></i><i></i><i></i></div>
+    <b>01<span>/06</span></b>
+  </aside>
+
+  <details class="landing-info">
+    <summary aria-label="About this engineering activity">i</summary>
+    <div class="landing-info-card">
+      <span>Mission brief</span>
+      <h2>Build. Code. Prove.</h2>
+      <p>Fit the mechanism in six stages, discover the correct Arduino values through trial and error, then prove the roof protects the washing.</p>
+    </div>
+  </details>
+
+  <div class="landing-cast" aria-hidden="true">
+    <img class="landing-aisha" src="assets/characters/aisha-speaking.png" alt="">
+    <img class="landing-arjun" src="assets/characters/arjun-speaking.png" alt="">
+  </div>
+
+  <section class="landing-dialogue" aria-live="polite" aria-labelledby="landingSpeaker" aria-describedby="landingDialogue">
+    <div class="landing-dialogue-copy">
+      <p><b id="landingSpeaker">Aisha</b><span id="landingBeat">The problem · 1 / 2</span></p>
+      <p id="landingDialogue">Oh no—the clothes are still outside and the rain has started. If nobody is home, they will be soaked.</p>
+    </div>
+    <div class="landing-cta-wrap">
+      <button id="startBtn" class="big landing-cta" type="button">
+        <span class="landing-bolt bolt-a" aria-hidden="true"></span>
+        <span class="landing-bolt bolt-b" aria-hidden="true"></span>
+        <span id="startLabel">What can we build?</span>
+        <svg viewBox="0 0 38 22" aria-hidden="true"><path d="M1 11h31M23 2l10 9-10 9"/></svg>
+      </button>
+    </div>
+  </section>
+
+  <p class="sr-only">Start the activity to build a rain-sensing folding roof in six guided stages, tune its Arduino code, and test the finished system.</p>
+</div>
+
+<!-- left rail: controls, then the debug drawer beneath them -->
+<div class="rail rail-left">
+
+  <section id="controls" class="panel hidden" aria-label="Simulation controls">
+    <h2>Mission tools</h2>
+    <div class="btn-grid">
+      <button id="btnBuild" class="mode" type="button" aria-pressed="false">Rebuild from start</button>
+      <button id="btnExplode" class="mode hidden" data-unlock="after-build" type="button" aria-pressed="false">Parts view</button>
+      <button id="btnStory" class="mode hidden" data-unlock="after-build" type="button" aria-pressed="false">Story</button>
+      <button id="btnCode" class="mode hidden" data-unlock="after-build" type="button" aria-pressed="false">Code</button>
+    </div>
+
+    <div id="postBuildControls" class="hidden" data-unlock="after-test">
+    <h2 class="mt">Run the finished system</h2>
+    <div class="btn-grid">
+      <button id="btnRain" class="primary" type="button">Start rain</button>
+      <button id="btnDemo" type="button">Demo</button>
+      <button id="btnOpen" class="advanced" type="button">Open roof</button>
+      <button id="btnClose" class="advanced" type="button">Close roof</button>
+      <button id="btnAuto" class="advanced" type="button" aria-pressed="true">Auto mode: on</button>
+      <button id="btnReset" type="button">Restart mission</button>
+    </div>
+
+    <h2 class="mt advanced">Camera</h2>
+    <div class="btn-grid three advanced">
+      <button class="cam active" data-cam="overview" type="button" aria-pressed="true">Overview</button>
+      <button class="cam" data-cam="house" type="button" aria-pressed="false">House</button>
+      <button class="cam" data-cam="court" type="button" aria-pressed="false">Sun court</button>
+      <button class="cam" data-cam="canopy" type="button" aria-pressed="false">Awning</button>
+      <button class="cam" data-cam="servo" type="button" aria-pressed="false">Servo</button>
+      <button class="cam" data-cam="sensor" type="button" aria-pressed="false">Sensor</button>
+      <button class="cam" data-cam="clothes" type="button" aria-pressed="false">Clothes</button>
+      <button class="cam" data-cam="electronics" type="button" aria-pressed="false">Wiring</button>
+    </div>
+
+    <div class="btn-grid mt advanced">
+      <button id="btnCamReset" type="button">Reset camera</button>
+      <button id="btnLabels" type="button" aria-pressed="false">Labels: off</button>
+    </div>
+    <div class="btn-grid mt one advanced">
+      <button id="btnDebug" type="button" aria-pressed="false">Debug panel</button>
+    </div>
+    </div>
+  </section>
+
+
+  <section id="debug" class="panel hidden" aria-label="Debug controls">
+    <h2>Debug</h2>
+    <div class="sliders">
+    <label>Rain intensity
+      <input type="range" id="dbgIntensity" min="0" max="1" step="0.01" value="1">
+    </label>
+    <label>Rain speed
+      <input type="range" id="dbgSpeed" min="0.3" max="2" step="0.05" value="1">
+    </label>
+    <label>Wind
+      <input type="range" id="dbgWind" min="-1" max="1" step="0.05" value="0.15">
+    </label>
+    <label>Sun intensity
+      <input type="range" id="dbgSun" min="0.2" max="4" step="0.05" value="2.6">
+    </label>
+    <label>Servo angle
+      <input type="range" id="dbgServo" min="0" max="90" step="1" value="0">
+    </label>
+    <label>Roof progress
+      <input type="range" id="dbgRoof" min="0" max="1" step="0.01" value="0">
+    </label>
+    <label>Detect delay <output id="dbgDetectOut">800 ms</output>
+      <input type="range" id="dbgDetect" min="100" max="3000" step="50" value="800">
+    </label>
+    <label>Reopen delay <output id="dbgReopenOut">3000 ms</output>
+      <input type="range" id="dbgReopen" min="500" max="8000" step="100" value="3000">
+    </label>
+    </div>
+    <p class="note">Dragging servo or roof pauses the state machine; releasing resumes it.</p>
+  </section>
+
+</div>
+
+<!-- right rail: live monitor, then the component info card beneath it -->
+<div class="rail rail-right">
+
+  <section id="buildPanel" class="panel hidden" aria-label="Build steps">
+    <h2>Build workshop</h2>
+    <p class="step-count"><span id="stepNo">1</span> / <span id="stepTotal">12</span></p>
+    <div class="step-bar"><div id="stepFill"></div></div>
+    <h3 id="stepTitle">Look at the house</h3>
+    <p id="needLabel" class="need-label">Starting setup</p>
+    <ul id="stepNeed" class="need-list"></ul>
+    <p id="stepSay" class="step-say"></p>
+    <div class="btn-grid mt">
+      <button id="btnStepPrev" type="button">Back</button>
+      <button id="btnStepNext" class="primary" type="button">Next step</button>
+    </div>
+    <div class="btn-grid mt one">
+      <button id="btnBuildDone" type="button">Finish the build &amp; test it</button>
+    </div>
+  </section>
+
+  <section id="status" class="panel hidden" data-unlock="after-build" aria-label="System monitor" aria-live="polite">
+    <h2>System monitor</h2>
+    <dl class="mono">
+      <div><dt>Weather</dt><dd id="stWeather">Sunny</dd></div>
+      <div><dt>Rain sensor</dt><dd id="stSensor">Dry</dd></div>
+      <div><dt>Arduino</dt><dd id="stController">Standby</dd></div>
+      <div><dt>Servo</dt><dd id="stServo">0&deg;</dd></div>
+      <div><dt>Roof</dt><dd id="stRoof">Open</dd></div>
+      <div><dt>Auto mode</dt><dd id="stAuto">On</dd></div>
+      <div><dt>Arduino code</dt><dd id="stCode">30&deg; / 1500 ms</dd></div>
+    </dl>
+
+    <div id="flow" aria-hidden="true">
+      <span data-stage="rain">Rain</span><i>&darr;</i>
+      <span data-stage="sensor">Rain sensor</span><i>&darr;</i>
+      <span data-stage="arduino">Arduino</span><i>&darr;</i>
+      <span data-stage="servo">Servo motor</span><i>&darr;</i>
+      <span data-stage="roof">Retractable roof</span><i>&darr;</i>
+      <span data-stage="done">Clothes protected</span>
+    </div>
+  </section>
+
+  <section id="proof" class="panel hidden" aria-label="Working proof" aria-live="polite">
+    <h2>Working proof</h2>
+    <p id="proofResult" class="proof-result">Run the tuned sketch to create the proof.</p>
+    <ul class="proof-list">
+      <li><span>01</span> Rain started</li>
+      <li><span>02</span> Sensor detected water</li>
+      <li><span>03</span> Arduino applied the rule</li>
+      <li><span>04</span> Servo reached 90&deg;</li>
+      <li><span>05</span> Roof covered the rack</li>
+      <li><span>06</span> Clothes protected</li>
+    </ul>
+  </section>
+
+  <section id="info" class="panel hidden" aria-label="Component information">
+    <button id="infoClose" type="button" aria-label="Close">&times;</button>
+    <h2 id="infoTitle"></h2>
+    <p id="infoBody"></p>
+  </section>
+
+</div>
+
+<!-- Arduino code editor: fullscreen popup, the child tunes the two numbers -->
+<div id="codeModal" class="hidden" role="dialog" aria-modal="true" aria-label="Arduino code editor">
+  <section id="codePanel">
+    <button id="codeClose" type="button" aria-label="Close">&times;</button>
+    <h2>Code the Arduino</h2>
+    <p class="code-sub">Change the two highlighted numbers, upload, and learn from the physical result.</p>
+    <div class="codewrap">
+      <div class="codehead">
+        <span class="mac" style="background:#FF5F57"></span><span class="mac" style="background:#FEBC2E"></span><span class="mac" style="background:#28C840"></span>
+        <span class="fname">smart_roof.ino</span><span class="live">LIVE</span>
+      </div>
+      <pre class="code"><span class="kw">#include</span> <span class="str">&lt;Servo.h&gt;</span>
+<span class="kw">const int</span> RAIN_PIN = <span class="num">7</span>; <span class="kw">const int</span> SERVO_PIN = <span class="num">9</span>;
+Servo awning;
+<span class="kw">void</span> <span class="fn">setup</span>() { <span class="fn">pinMode</span>(RAIN_PIN, INPUT); awning.<span class="fn">attach</span>(SERVO_PIN); }
+<span class="kw">void</span> <span class="fn">loop</span>() {
+  <span class="kw">if</span> (<span class="fn">digitalRead</span>(RAIN_PIN) == HIGH) { <span class="cm">// rain!</span>
+    awning.<span class="fn">write</span>(<span class="knob deg"><button id="degdn" type="button">&minus;</button><span class="v" id="degv">30&deg;</span><button id="degup" type="button">+</button></span>); <span class="cm">// angle</span>
+    <span class="fn">delay</span>(<span class="knob del"><button id="deldn" type="button">&minus;</button><span class="v" id="delv">1500</span><button id="delup" type="button">+</button></span>); <span class="cm">// wait ms</span>
+  } <span class="kw">else</span> { awning.<span class="fn">write</span>(<span class="num">0</span>); }
+}</pre>
+    </div>
+    <div id="codeReport" aria-live="polite"></div>
+    <div class="code-mission-strip">
+      <p id="codeHint" class="code-proof-key"><b>Mission:</b> find an angle that covers every shirt and a delay that reacts before the washing gets wet.</p>
+      <p id="codeAttempts" class="code-attempts">Trial 0 of 3 before the coach unlocks</p>
+    </div>
+    <div class="code-actions">
+      <button id="btnCodeTest" class="primary" type="button">Upload &amp; test this trial</button>
+    </div>
+  </section>
+</div>
+
+<!-- story mode: two young builders narrate each action as it appears -->
+<div id="story" class="hidden" role="dialog" aria-label="Story mode">
+  <img id="storyAisha" class="story-body" src="assets/characters/aisha-speaking.png" alt="Aisha, the young engineer">
+  <img id="storyArjun" class="story-body" src="assets/characters/arjun-speaking.png" alt="Arjun, the young engineer">
+  <div class="story-bubble">
+    <p class="story-meta"><b id="storyName">Aisha &amp; Arjun</b><span id="storyStep">1 / 12</span></p>
+    <p id="storyText"></p>
+    <div class="story-actions">
+      <button id="storySkip" type="button">Skip story</button>
+      <button id="storyNext" class="primary" type="button">Next</button>
+    </div>
+  </div>
+</div>
+
+<!-- The guided build has its own quiet lower-corner narrators. They stand
+     still; speech, not bouncing, provides the talking feeling. -->
+<div id="storyVeil" class="hidden" aria-hidden="true"></div>
+<section id="narratorDock" class="hidden" role="dialog" aria-modal="true" aria-live="polite" aria-labelledby="narratorName" aria-describedby="narratorText">
+  <img class="narrator-person narrator-aisha" src="assets/characters/aisha-speaking.png" alt="" aria-hidden="true">
+  <div class="narrator-copy">
+    <p><b id="narratorName">Aisha</b><span id="narratorStage">Build · 1 / 6</span><button id="voiceToggle" type="button" aria-pressed="true">Voice on</button></p>
+    <p id="narratorText"></p>
+    <button id="dialogueNext" class="primary" type="button">Next</button>
+  </div>
+  <img class="narrator-person narrator-arjun" src="assets/characters/arjun-speaking.png" alt="" aria-hidden="true">
+</section>
+<button id="buildContinue" class="primary hidden" type="button">Continue</button>
+
+<!-- The completed scene stays clean. One information button opens the only
+     post-build card, containing live status, proof, and essential actions. -->
+<button id="infoHubButton" class="hidden" type="button" aria-label="Open system information" aria-expanded="false">i</button>
+<div id="infoHubModal" class="hidden" role="dialog" aria-modal="true" aria-labelledby="infoHubTitle">
+  <section class="info-hub-card">
+    <button id="infoHubClose" type="button" aria-label="Close system information">&times;</button>
+    <p class="info-hub-kicker">Smart rain roof</p>
+    <h2 id="infoHubTitle">System ready</h2>
+    <p id="infoHubSummary">Rain → sensor → Arduino → servo → roof.</p>
+    <div class="info-hub-status" aria-label="Live system status">
+      <div><span>Weather</span><b id="hubWeather">Sunny</b></div>
+      <div><span>Sensor</span><b id="hubSensor">Dry</b></div>
+      <div><span>Roof</span><b id="hubRoof">Open</b></div>
+      <div><span>Code</span><b id="hubCodeState">30° · 1500 ms</b></div>
+    </div>
+    <div id="hubProof" class="hub-proof hidden">
+      <span aria-hidden="true">✓</span>
+      <div><b>Proof complete</b><p>90° and 500 ms protected the washing.</p></div>
+    </div>
+    <div class="info-hub-actions">
+      <button id="hubRain" class="primary" type="button">Start rain</button>
+      <button id="hubCode" type="button">Open code</button>
+      <button id="hubRestart" type="button">Restart</button>
+    </div>
+  </section>
+</div>
+
+<div id="toast" class="hidden" role="status"></div>
+<div id="labels" aria-hidden="true"></div>
+<div id="callouts" aria-hidden="true"></div>
+<p id="hint" class="hidden">drag to orbit &middot; scroll to zoom &middot; click a component for details</p>
+
+<script src="vendor/three.min.js?v=20260902"></script>
+<script src="js/helpers.js?v=20260902"></script>
+<script src="js/textures.js?v=20260902"></script>
+<script src="js/orbit-controls.js?v=20260902"></script>
+  <script src="js/core.js?v=20260904-sensor-raised"></script>
+<script src="js/environment.js?v=20260902"></script>
+<script src="js/roof.js?v=20260902"></script>
+<script src="js/servo.js?v=20260902"></script>
+  <script src="js/electronics.js?v=20260904-sensor-raised"></script>
+<script src="js/rack.js?v=20260902"></script>
+<script src="js/weather.js?v=20260902"></script>
+<script src="js/simulation.js?v=20260902b"></script>
+<script src="js/build.js?v=20260904-raised-copy"></script>
+<script src="js/ui.js?v=20260904-waist-glow"></script>
+<script src="js/arduino-code.js?v=20260904-three-trials"></script>
+<script src="js/story.js?v=20260904-six-stages"></script>
+<script src="js/main.js?v=20260903-simple-flow"></script>
+</body>
+</html>

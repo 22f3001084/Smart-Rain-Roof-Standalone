@@ -1,0 +1,670 @@
+/* Smart Rain Roof landing experience.
+   Geometry and motion are derived from the Electronic & Engineering board:
+   angular navy/blue panels, orange mechanical accents, visible fasteners,
+   a right-side progress rail, and reversible corner entry paths. */
+
+#startScreen.engineering-landing {
+  --landing-navy: #0b2545;
+  --landing-blue: #154777;
+  --landing-electric: #2784dd;
+  --landing-orange: #f7941d;
+  --landing-cyan: #8ddef8;
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: block;
+  overflow: hidden;
+  padding: 0;
+  color: #fff;
+  background: #061524;
+  isolation: isolate;
+}
+
+#startScreen.engineering-landing::before,
+#startScreen.engineering-landing::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+#startScreen.engineering-landing::before {
+  background:
+    linear-gradient(90deg, rgba(3,14,27,.99) 0%, rgba(5,22,40,.96) 26%, rgba(7,25,45,.73) 43%, rgba(4,17,31,.05) 70%),
+    linear-gradient(0deg, rgba(3,12,23,.75), transparent 44%),
+    radial-gradient(70% 80% at 78% 42%, transparent 40%, rgba(3,13,24,.22) 100%);
+}
+
+#startScreen.engineering-landing::after {
+  inset: 12px;
+  border: 1px solid rgba(141,222,248,.16);
+  clip-path: polygon(0 0, calc(100% - 36px) 0, 100% 36px, 100% 100%, 24px 100%, 0 calc(100% - 24px));
+  box-shadow: inset 0 0 70px rgba(3,13,24,.3);
+}
+
+.landing-hero {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  user-select: none;
+  filter: saturate(.94) contrast(1.03);
+  animation: landingHeroIn 900ms cubic-bezier(.16,1,.3,1) both;
+}
+
+.landing-grid {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  opacity: .2;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(141,222,248,.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(141,222,248,.08) 1px, transparent 1px);
+  background-size: 54px 54px;
+  mask-image: linear-gradient(90deg, #000, transparent 65%);
+}
+
+.landing-topline {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 5;
+  display: flex;
+  width: 36%;
+  height: 7px;
+  transform: translateY(-110%);
+  animation: landingTopIn 440ms cubic-bezier(.16,1.24,.32,1) 180ms forwards;
+}
+
+.landing-topline span:nth-child(1) { flex: 1; background: linear-gradient(90deg, transparent, var(--landing-electric)); }
+.landing-topline span:nth-child(2) { width: 22%; background: var(--landing-cyan); }
+.landing-topline span:nth-child(3) { width: 18%; background: var(--landing-orange); }
+
+.landing-copy {
+  position: absolute;
+  top: clamp(104px, 15vh, 165px);
+  left: clamp(42px, 5.5vw, 106px);
+  z-index: 6;
+  width: min(510px, 41vw);
+  min-width: 390px;
+  opacity: 0;
+  transform: translate(-90px, -20px) rotate(-2deg);
+  animation: landingHeaderIn 580ms cubic-bezier(.16,1.24,.32,1) 340ms forwards;
+}
+
+.landing-kicker {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 24px;
+  color: var(--landing-cyan);
+  font: 700 clamp(.65rem,.75vw,.78rem)/1 "Chakra Petch", sans-serif;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+
+.landing-kicker::before {
+  content: "";
+  width: 5px;
+  height: 27px;
+  background: var(--landing-orange);
+  box-shadow: 8px 0 0 rgba(247,148,29,.28);
+}
+
+.landing-kicker b {
+  padding: 6px 9px;
+  color: #fff;
+  border: 1px solid rgba(141,222,248,.28);
+  clip-path: polygon(0 0, calc(100% - 7px) 0, 100% 7px, 100% 100%, 0 100%);
+  background: rgba(39,132,221,.14);
+  font: inherit;
+}
+
+.landing-problem-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 8px;
+  color: #ffc673;
+  font: 700 clamp(.72rem,.8vw,.84rem)/1 "Chakra Petch", sans-serif;
+  letter-spacing: .11em;
+  text-transform: uppercase;
+}
+
+.landing-problem-label::before {
+  content: "";
+  width: 22px;
+  height: 2px;
+  background: var(--landing-orange);
+}
+
+.landing-copy h1 {
+  margin: 0;
+  color: #fff;
+  font: 700 clamp(3.25rem,6.2vw,7rem)/.79 "Chakra Petch", sans-serif;
+  letter-spacing: -.075em;
+  text-shadow: 0 10px 36px rgba(0,0,0,.4);
+}
+
+.landing-copy h1::after {
+  content: "";
+  display: block;
+  width: clamp(110px,11vw,190px);
+  height: 6px;
+  margin-top: 18px;
+  background: linear-gradient(90deg, var(--landing-orange) 0 46%, var(--landing-electric) 46% 78%, transparent 78%);
+}
+
+.landing-lede {
+  max-width: 470px;
+  margin: 19px 0 18px;
+  color: #d9eaf4;
+  font: 500 clamp(.92rem,1.14vw,1.18rem)/1.52 Poppins, sans-serif;
+  text-wrap: balance;
+}
+
+.landing-system {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: max-content;
+  margin: 0 0 22px;
+  padding: 9px 12px;
+  color: #e8f7ff;
+  border: 1px solid rgba(141,222,248,.25);
+  clip-path: polygon(0 0, calc(100% - 13px) 0, 100% 13px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
+  background: linear-gradient(100deg, rgba(21,71,119,.78), rgba(7,26,46,.76));
+  box-shadow: inset 3px 0 0 var(--landing-electric);
+  font: 700 clamp(.68rem,.78vw,.8rem)/1 "Chakra Petch", sans-serif;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+
+.landing-system span { display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+.landing-system b { color: #ffc36a; font-size: .68em; }
+.landing-system i { width: 18px; height: 1px; background: rgba(141,222,248,.54); position: relative; }
+.landing-system i::after { content: ""; position: absolute; right: 0; top: -2px; border-left: 4px solid rgba(141,222,248,.72); border-top: 2px solid transparent; border-bottom: 2px solid transparent; }
+
+.landing-cta-wrap {
+  width: min(350px, 100%);
+  opacity: 0;
+  transform: translateY(180px) scale(.9);
+  animation: landingCtaIn 520ms cubic-bezier(.16,1.24,.32,1) 980ms forwards;
+}
+
+button.big.landing-cta {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  width: 100%;
+  min-height: 64px;
+  padding: 15px 34px;
+  overflow: hidden;
+  color: #fff !important;
+  border: 2px solid rgba(255,255,255,.82) !important;
+  clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%) !important;
+  background: linear-gradient(135deg, var(--landing-blue), var(--landing-electric)) !important;
+  box-shadow: inset 5px 0 0 var(--landing-orange), 0 14px 34px rgba(0,0,0,.35) !important;
+  font: 700 clamp(.9rem,1.12vw,1.12rem)/1 "Chakra Petch", sans-serif !important;
+  letter-spacing: .055em;
+  text-transform: uppercase;
+  transition: filter 180ms ease, transform 180ms ease !important;
+}
+
+button.big.landing-cta:hover:not(:disabled) { filter: brightness(1.12); transform: translateY(-2px); }
+button.big.landing-cta:active:not(:disabled) { transform: translateY(0); }
+.landing-cta svg { width: 38px; height: 22px; fill: none; stroke: #fff; stroke-width: 2.5; stroke-linecap: square; stroke-linejoin: miter; }
+.landing-bolt { position: absolute; width: 7px; height: 7px; border: 1px solid rgba(255,255,255,.9); background: var(--landing-orange); transform: rotate(45deg); }
+.landing-bolt.bolt-a { left: 11px; top: 10px; }
+.landing-bolt.bolt-b { right: 16px; bottom: 9px; }
+
+.landing-outcomes {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 12px 0 0;
+  color: rgba(218,237,247,.72);
+  font: 600 clamp(.6rem,.68vw,.72rem)/1 "Chakra Petch", sans-serif;
+  letter-spacing: .055em;
+  text-transform: uppercase;
+}
+.landing-outcomes i { width: 4px; height: 4px; background: var(--landing-orange); transform: rotate(45deg); }
+
+.landing-rail {
+  position: absolute;
+  top: 24%;
+  right: clamp(21px,2.4vw,46px);
+  z-index: 6;
+  display: grid;
+  justify-items: center;
+  gap: 13px;
+  opacity: 0;
+  transform: translate(220px,40px) rotate(6deg);
+  animation: landingRailIn 540ms cubic-bezier(.16,1.24,.32,1) 620ms forwards;
+}
+
+.rail-title {
+  color: rgba(255,255,255,.72);
+  font: 700 .62rem/1 "Chakra Petch", sans-serif;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+}
+
+.rail-track {
+  position: relative;
+  display: grid;
+  gap: 14px;
+  padding: 13px 8px;
+  border-left: 3px solid var(--landing-orange);
+  background: rgba(6,22,39,.55);
+}
+.rail-track::after { content: ""; position: absolute; top: 0; right: -4px; width: 2px; height: 38%; background: var(--landing-cyan); }
+.rail-track i { width: 8px; height: 8px; border: 1px solid rgba(255,255,255,.7); background: var(--landing-navy); transform: rotate(45deg); }
+.rail-track i.done { border-color: #ffd08c; background: var(--landing-orange); box-shadow: 0 0 13px rgba(247,148,29,.7); }
+.landing-rail > b { color: #fff; font: 700 clamp(.94rem,1.3vw,1.3rem)/1 "Chakra Petch", sans-serif; }
+.landing-rail > b span { color: rgba(255,255,255,.5); font-size: .58em; }
+
+.landing-info {
+  position: absolute;
+  top: clamp(18px,2.4vh,28px);
+  right: clamp(66px,6.2vw,118px);
+  z-index: 11;
+  opacity: 0;
+  transform: translateY(-150px) scale(.86);
+  animation: landingHudIn 520ms cubic-bezier(.16,1.24,.32,1) 460ms forwards;
+}
+.landing-info summary {
+  display: grid;
+  place-items: center;
+  width: clamp(48px,4.8vw,66px);
+  aspect-ratio: 1;
+  cursor: pointer;
+  list-style: none;
+  color: #10263d;
+  clip-path: polygon(50% 0,66% 10%,85% 8%,92% 27%,100% 43%,91% 59%,91% 80%,71% 88%,55% 100%,39% 90%,18% 92%,11% 72%,0 57%,8% 40%,8% 20%,29% 13%);
+  background: linear-gradient(135deg,#ffd480,var(--landing-orange));
+  box-shadow: 0 12px 30px rgba(0,0,0,.35);
+  font: 700 clamp(1.4rem,2vw,2rem)/1 "Chakra Petch", sans-serif;
+}
+.landing-info summary::-webkit-details-marker { display: none; }
+.landing-info summary:focus-visible { outline: 3px solid #fff; outline-offset: 5px; }
+.landing-info-card {
+  position: absolute;
+  top: calc(100% + 12px);
+  right: 0;
+  width: min(370px,calc(100vw - 38px));
+  padding: 20px 22px 22px;
+  border: 1px solid rgba(141,222,248,.42);
+  clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 12px 100%, 0 calc(100% - 12px));
+  background: linear-gradient(135deg,rgba(21,71,119,.985),rgba(4,17,31,.985));
+  box-shadow: inset 4px 0 0 var(--landing-orange),0 22px 52px rgba(0,0,0,.45);
+}
+.landing-info:not([open]) .landing-info-card { display: none; }
+.landing-info-card span { color: var(--landing-cyan); font: 700 .65rem/1 "Chakra Petch",sans-serif; letter-spacing: .13em; text-transform: uppercase; }
+.landing-info-card h2 { margin: 8px 0 8px; font: 700 1.34rem/1.05 "Chakra Petch",sans-serif; }
+.landing-info-card p { margin: 0; color: #d9eaf4; font: 500 .82rem/1.5 Poppins,sans-serif; }
+
+.landing-story {
+  position: absolute;
+  z-index: 9;
+  display: flex;
+  align-items: end;
+  gap: 0;
+  pointer-events: none;
+  opacity: 0;
+}
+.landing-story img {
+  position: relative;
+  z-index: 2;
+  width: clamp(112px,12vw,184px);
+  max-height: 30vh;
+  object-fit: contain;
+  object-position: bottom;
+  filter: drop-shadow(0 15px 20px rgba(0,0,0,.42));
+}
+.landing-story > div {
+  width: clamp(250px,25vw,380px);
+  margin: 0 0 clamp(30px,5vh,60px) -17px;
+  padding: 17px 21px 19px 25px;
+  color: #f5fbff;
+  border: 1px solid rgba(141,222,248,.42);
+  clip-path: polygon(0 0,calc(100% - 16px) 0,100% 16px,100% 100%,18px 100%,0 calc(100% - 18px));
+  background: linear-gradient(135deg,rgba(21,71,119,.98),rgba(4,17,31,.98));
+  box-shadow: inset 5px 0 0 var(--landing-orange),0 16px 38px rgba(0,0,0,.45);
+}
+.landing-story span { color: var(--landing-cyan); font: 700 .62rem/1 "Chakra Petch",sans-serif; letter-spacing: .1em; text-transform: uppercase; }
+.landing-story p { margin: 7px 0 0; font: 700 clamp(.82rem,1vw,1rem)/1.34 "Chakra Petch",sans-serif; }
+
+.story-problem {
+  right: clamp(52px,7vw,132px);
+  bottom: 0;
+  transform: translate(120%,90px) rotate(5deg);
+  animation: storyFromBottom 4.1s cubic-bezier(.16,1.1,.32,1) .45s both;
+}
+.story-mission {
+  right: clamp(52px,7vw,132px);
+  bottom: 0;
+  align-items: end;
+  transform: translate(120%,90px) rotate(5deg);
+  animation: storyFromBottom 4.2s cubic-bezier(.16,1.1,.32,1) 4.85s both;
+}
+.story-mission img { order: 2; width: clamp(112px,12vw,184px); }
+.story-mission > div { margin: 0 -10px clamp(30px,5vh,60px) 0; padding-right: 25px; }
+
+.sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0,0,0,0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+@keyframes landingHeroIn { from { opacity: 0; transform: scale(1.045); } to { opacity: 1; transform: scale(1); } }
+@keyframes landingTopIn { to { transform: translateY(0); } }
+@keyframes landingHeaderIn { to { opacity: 1; transform: none; } }
+@keyframes landingCtaIn { to { opacity: 1; transform: none; } }
+@keyframes landingRailIn { to { opacity: 1; transform: none; } }
+@keyframes landingHudIn { to { opacity: 1; transform: none; } }
+@keyframes storyFromBottom {
+  0%,8% { opacity: 0; transform: translate(120%,90px) rotate(5deg); }
+  18%,72% { opacity: 1; transform: none; }
+  82%,100% { opacity: 0; transform: translate(120%,80px) rotate(4deg); visibility: hidden; }
+}
+@keyframes storyFromTop {
+  0%,8% { opacity: 0; transform: translateY(-140%) scale(.9); }
+  18%,72% { opacity: 1; transform: none; }
+  82%,100% { opacity: 0; transform: translateY(-140%) scale(.9); visibility: hidden; }
+}
+
+@media (max-width: 1040px) {
+  .landing-copy { left: 44px; width: min(480px,46vw); min-width: 360px; }
+  .landing-copy h1 { font-size: clamp(3.2rem,7vw,5.8rem); }
+  .landing-hero { object-position: 57% center; }
+  .landing-story > div { width: 270px; }
+  .landing-rail { right: 20px; }
+}
+
+@media (max-width: 760px) {
+  #startScreen.engineering-landing::before {
+    background: linear-gradient(0deg,rgba(3,14,27,.99) 0%,rgba(5,22,40,.92) 50%,rgba(5,22,40,.16) 82%);
+  }
+  .landing-hero { height: 54%; object-position: 63% 44%; }
+  .landing-grid { opacity: .12; }
+  .landing-copy {
+    top: auto;
+    right: 24px;
+    bottom: max(28px,env(safe-area-inset-bottom));
+    left: 24px;
+    width: auto;
+    min-width: 0;
+  }
+  .landing-kicker { margin-bottom: 11px; }
+  .landing-problem-label { margin-bottom: 4px; }
+  .landing-copy h1 { font-size: clamp(2.75rem,14vw,4.6rem); line-height: .82; }
+  .landing-copy h1 br { display: none; }
+  .landing-copy h1::after { height: 4px; margin-top: 10px; }
+  .landing-lede { margin: 11px 0; font-size: .86rem; line-height: 1.42; }
+  .landing-system { margin-bottom: 12px; padding: 7px 9px; gap: 6px; font-size: .62rem; }
+  .landing-system i { width: 10px; }
+  .landing-cta-wrap { width: min(100%,360px); }
+  button.big.landing-cta { min-height: 54px; padding: 12px 24px; }
+  .landing-outcomes { font-size: .56rem; flex-wrap: wrap; }
+  .landing-rail { display: none; }
+  .landing-info { top: 17px; right: 18px; }
+  .landing-story { display: none; }
+}
+
+@media (max-height: 620px) and (min-width: 761px) {
+  .landing-copy { top: 55px; width: min(500px,43vw); }
+  .landing-kicker { margin-bottom: 10px; }
+  .landing-problem-label { margin-bottom: 4px; }
+  .landing-copy h1 { font-size: clamp(2.6rem,6vw,4.6rem); }
+  .landing-copy h1::after { height: 4px; margin-top: 9px; }
+  .landing-lede { margin: 10px 0; font-size: .82rem; line-height: 1.36; }
+  .landing-system { margin-bottom: 10px; padding: 7px 10px; }
+  button.big.landing-cta { min-height: 50px; padding-block: 10px; }
+  .landing-outcomes { margin-top: 7px; }
+  .landing-story img { max-height: 26vh; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing-hero,
+  .landing-topline,
+  .landing-copy,
+  .landing-cta-wrap,
+  .landing-rail,
+  .landing-info {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .landing-story { display: none !important; }
+  button.big.landing-cta { transition: none !important; }
+}
+
+/* ================= Immersive build dialogue =================
+   Canonical final rules: the dialogue is a full game state, occupying 75.6%
+   of the viewport area (90vw × 84dvh) while the translucent surface preserves
+   the corrected 3D setup as visible context. */
+body.dialogue-active #storyVeil {
+  z-index: 70;
+  background: rgba(2,10,19,.32);
+  backdrop-filter: blur(4px) saturate(.82);
+  -webkit-backdrop-filter: blur(4px) saturate(.82);
+}
+
+#narratorDock {
+  z-index: 72;
+  display: grid;
+  place-items: center;
+  padding: 8dvh 5vw;
+}
+
+#narratorDock .narrator-copy {
+  position: relative;
+  inset: auto;
+  left: auto;
+  right: auto;
+  top: auto;
+  bottom: auto;
+  box-sizing: border-box;
+  width: 90vw;
+  height: 84vh;
+  height: 84dvh;
+  max-width: none;
+  max-height: none;
+  display: grid;
+  grid-template-rows: auto minmax(0,1fr) auto;
+  align-items: center;
+  margin: 0;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(22px) scale(.985);
+  padding: clamp(28px,4vw,64px);
+  border: 1px solid rgba(141,222,248,.46) !important;
+  border-radius: 0 !important;
+  clip-path: polygon(0 0,calc(100% - 34px) 0,100% 34px,100% 100%,24px 100%,0 calc(100% - 24px)) !important;
+  background: linear-gradient(135deg,rgba(21,71,119,.94),rgba(11,37,69,.91) 54%,rgba(4,17,31,.82)) !important;
+  box-shadow: inset 6px 0 0 var(--landing-orange),inset 0 1px 0 rgba(255,255,255,.12),0 30px 90px rgba(0,0,0,.58) !important;
+  transition: opacity .22s ease,transform .32s cubic-bezier(.2,.8,.3,1);
+  pointer-events: auto;
+}
+
+#narratorDock.show-aisha .narrator-copy,
+#narratorDock.show-arjun .narrator-copy {
+  left: auto;
+  right: auto;
+  top: auto;
+  bottom: auto;
+  opacity: 1;
+  transform: none;
+}
+
+#narratorDock.show-aisha .narrator-copy { padding-left: clamp(300px,32vw,560px); }
+#narratorDock.show-arjun .narrator-copy { padding-right: clamp(300px,32vw,560px); }
+
+#narratorDock .narrator-copy::before {
+  top: 0 !important;
+  right: 0 !important;
+  left: 0 !important;
+  width: auto !important;
+  height: 7px !important;
+  margin: 0 !important;
+  background: linear-gradient(90deg,var(--landing-orange) 0 24%,var(--landing-electric) 24% 68%,var(--landing-cyan) 68% 100%) !important;
+}
+
+#narratorDock .narrator-copy::after { display: none !important; }
+
+#narratorDock .narrator-person {
+  z-index: 3;
+  bottom: 8dvh;
+  width: auto;
+  height: 72vh;
+  height: 72dvh;
+  max-width: 35vw;
+  max-height: 72vh;
+  max-height: 72dvh;
+  object-fit: contain;
+  object-position: bottom;
+  opacity: 0;
+  transform: translateY(28px);
+  filter: drop-shadow(0 20px 34px rgba(0,0,0,.62));
+  transition: opacity .24s ease,transform .34s cubic-bezier(.2,.8,.3,1);
+}
+
+#narratorDock .narrator-aisha { left: 7vw; }
+#narratorDock .narrator-arjun { right: 7vw; }
+#narratorDock.show-aisha .narrator-aisha,
+#narratorDock.show-arjun .narrator-arjun { opacity: 1; transform: none; }
+
+#narratorDock .narrator-copy > p:first-child {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  gap: 14px;
+  margin: 0;
+  padding-bottom: clamp(16px,2.3vh,26px);
+  border-bottom: 1px solid rgba(141,222,248,.22);
+}
+
+#narratorDock .narrator-copy b {
+  color: #ffd089;
+  font: 700 clamp(1.15rem,1.7vw,1.55rem)/1 "Chakra Petch",sans-serif;
+  letter-spacing: .035em;
+  text-transform: uppercase;
+}
+
+#narratorDock .narrator-copy span {
+  margin: 0;
+  color: var(--landing-cyan);
+  font: 700 clamp(.66rem,.85vw,.82rem)/1 "Chakra Petch",sans-serif;
+  letter-spacing: .1em;
+}
+
+#narratorDock #voiceToggle {
+  min-height: 42px;
+  padding: 8px 13px;
+  border-color: rgba(141,222,248,.34);
+  color: #ecf8ff;
+  background: rgba(4,17,31,.64);
+  font-size: clamp(.68rem,.82vw,.8rem);
+}
+
+#narratorDock #narratorText {
+  align-self: center;
+  min-height: 0;
+  max-width: 42ch;
+  overflow: auto;
+  margin: clamp(18px,3vh,34px) 0;
+  color: #fff;
+  font: 600 clamp(1.3rem,2.1vw,2rem)/1.5 "Bricolage Grotesque","IBM Plex Sans",sans-serif;
+  text-wrap: balance;
+}
+
+#narratorDock #dialogueNext {
+  align-self: end;
+  justify-self: center;
+  width: min(360px,100%);
+  min-height: 56px;
+  margin: 0;
+  color: #10263b;
+  font: 700 clamp(.88rem,1vw,1rem)/1 "Chakra Petch",sans-serif;
+  letter-spacing: .055em;
+  text-transform: uppercase;
+}
+
+@media (max-width: 700px) {
+  #narratorDock { padding: 10px; }
+  #narratorDock .narrator-copy,
+  #narratorDock.show-aisha .narrator-copy,
+  #narratorDock.show-arjun .narrator-copy {
+    width: calc(100vw - 20px);
+    height: calc(100vh - 20px);
+    height: calc(100dvh - 20px);
+    padding: 20px 18px calc(30dvh + 16px);
+  }
+  #narratorDock .narrator-person {
+    bottom: 10px;
+    width: auto;
+    height: 30dvh;
+    max-width: 48vw;
+    max-height: 30dvh;
+  }
+  #narratorDock .narrator-aisha { left: 18px; }
+  #narratorDock .narrator-arjun { right: 18px; }
+  #narratorDock #narratorText { font-size: clamp(1rem,3.5vw,1.18rem); }
+  #narratorDock .narrator-copy > p:first-child { grid-template-columns: 1fr auto; gap: 8px; }
+  #narratorDock #voiceToggle { grid-column: 1 / -1; justify-self: start; }
+}
+
+@media (max-width: 700px) and (max-height: 450px) {
+  #narratorDock .narrator-copy,
+  #narratorDock.show-aisha .narrator-copy,
+  #narratorDock.show-arjun .narrator-copy {
+    padding: 18px 24px;
+  }
+  #narratorDock.show-aisha .narrator-copy { padding-left: 33vw; }
+  #narratorDock.show-arjun .narrator-copy { padding-right: 33vw; }
+  #narratorDock .narrator-person {
+    bottom: 10px;
+    height: 72dvh;
+    max-width: 34vw;
+    max-height: 72dvh;
+  }
+  #narratorDock .narrator-copy > p:first-child { grid-template-columns: 1fr auto auto; }
+  #narratorDock #voiceToggle { grid-column: auto; justify-self: auto; }
+  #narratorDock #narratorText { margin: 10px 0; font-size: clamp(.88rem,2.5vw,1.02rem); line-height: 1.38; }
+  #narratorDock #dialogueNext { min-height: 46px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #narratorDock .narrator-copy,
+  #narratorDock .narrator-person { transition-duration: .01ms; }
+}
+
+/* The reveal card owns its rail width, so the 390px engineering panel never
+   overflows a narrower 250px rail or creates a horizontal scrollbar. */
+body[data-phase="BUILD_REVEAL"] .rail-right {
+  right: 18px;
+  width: min(390px,calc(100vw - 36px));
+  max-width: calc(100vw - 36px);
+  overflow-x: hidden;
+}
+
+body[data-phase="BUILD_REVEAL"] #buildPanel {
+  width: 100% !important;
+  max-width: 100%;
+}
