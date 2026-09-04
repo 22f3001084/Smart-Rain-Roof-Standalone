@@ -19,6 +19,50 @@ window.SRR = window.SRR || {};
 
   var S = SRR.SystemState;
 
+  /* Build highlight = a transparent accent outline drawn around the part that
+     was just installed. The part's own material is never cloned or edited, so
+     the servo stays blue, the brackets stay grey, and the learner sees the real
+     component instead of an orange repaint. */
+  var OUTLINE_COLOR = 0xf7941d;
+  var OUTLINE_OPACITY = 0.7;
+  var OUTLINE_MIN = 0.006;      // world units — keeps tiny parts readable
+  var OUTLINE_MAX = 0.035;      // world units — stops big panels looking bloated
+  var OUTLINE_RATIO = 0.045;    // rim thickness as a share of the part's size
+
+  /* Every step shows its parts beside the house first, named, before they fly
+     into position — the learner should know what a piece IS before watching
+     where it goes. Names are the words a child would hear in the kit. */
+  var PART_LABELS = {
+    Awning_Hinge_Assembly: 'Hinge plate',
+    Servo_SG90: 'SG90 servo',
+    Awning: 'Folding roof',
+    Servo_Linkage_Rod: 'Linkage rod',
+    Rain_Sensor_Module: 'Rain sensor',
+    Backboard_Assembly: 'Backboard',
+    Arduino_Assembly: 'Arduino Uno',
+    Breadboard_Assembly: 'Breadboard',
+    Power_Supply: '9V battery',
+    Cable_Sensor_Run: 'Sensor cable',
+    Cable_Servo_Run: 'Servo cable'
+  };
+
+  function partLabel(obj) {
+    if (!obj) { return 'Part'; }
+    return PART_LABELS[obj.name] || (obj.name || 'Part').replace(/_/g, ' ');
+  }
+
+  var STAGE_DWELL = 1600;       // ms the named part is held beside the house
+  var STAGE_TRAVEL = 780;       // ms of flight into position
+
+  /* Staging is measured as a share of what the camera can actually see at the
+     focus depth, not in world units. Every build step frames a different part
+     from a different distance, and fixed world offsets put the pieces off screen
+     in the close-up views. */
+  var STAGE_SIDE_FRAC = -0.58;  // to the camera's left: the build card owns the right
+  var STAGE_LIFT_FRAC = 0.06;   // nudge up so a chip clears the dialogue card
+  var STAGE_STEP_FRAC = 0.30;   // vertical gap when a step brings several parts
+  var STAGE_SPAN_FRAC = 0.24;   // on-screen size of the biggest staged part
+
   /* Short, speakable game lines. The detailed how-to remains in the build card
      for learners who want it; dialogue should never feel like a textbook. */
   var BUILD_LINES = [
@@ -112,6 +156,7 @@ window.SRR = window.SRR || {};
     this.pickTargets = opts.pickTargets;
     this.build = opts.build;
     this.exploded = opts.exploded;
+    this.scene = opts.scene;
 
     this.labelsOn = false;
     this._toastTimer = null;
@@ -119,6 +164,7 @@ window.SRR = window.SRR || {};
     this._placementToken = 0;
     this._activePlacements = [];
     this._highlightBindings = [];
+    this._stageProxies = [];
     this.codePanel = null;
     this.gameState = {
       phase: 'START',
@@ -164,63 +210,230 @@ window.SRR = window.SRR || {};
       item.obj.scale.copy(item.target);
     });
     this._activePlacements = [];
+    this._clearPartStage();
     this._clearBuildHighlight();
   };
 
-  /** Restore every material touched by the previous build-step highlight. */
+  /** Drop every staged stand-in and its name chip. */
+  UIController.prototype._clearPartStage = function () {
+    this._stageProxies.forEach(function (item) {
+      if (item.proxy.parent) { item.proxy.parent.remove(item.proxy); }
+      if (item.chip && item.chip.parentNode) { item.chip.parentNode.removeChild(item.chip); }
+    });
+    this._stageProxies = [];
+  };
+
+  /**
+   * Park a named stand-in for each part just off the side of the house.
+   *
+   * The stand-in is a clone that shares the real geometry and materials, parked
+   * in the scene root so it can travel in plain world space. Its resting spot is
+   * measured along the camera's own right/up axes, so the parts always wait
+   * beside the house on screen no matter which way the learner has orbited.
+   */
+  UIController.prototype._buildPartStage = function (objects) {
+    this._clearPartStage();
+    var camera = this.cam && this.cam.camera;
+    if (!camera || !this.scene) { return []; }
+
+    // Own the overlay rather than depend on the markup: a skin that drops the
+    // container must not silently cost the learner the whole staging step.
+    var host = $('partStage');
+    if (!host) {
+      host = document.createElement('div');
+      host.id = 'partStage';
+      host.setAttribute('aria-live', 'polite');
+      document.body.appendChild(host);
+    }
+
+    var focus = (this.cam.controls && this.cam.controls.target)
+      ? this.cam.controls.target.clone()
+      : new THREE.Vector3();
+    camera.updateMatrixWorld();
+    var right = new THREE.Vector3().setFromMatrixColumn(camera.matrixWorld, 0).normalize();
+    var up = new THREE.Vector3().setFromMatrixColumn(camera.matrixWorld, 1).normalize();
+
+    // What the camera can see at the depth the parts will wait at.
+    var depth = camera.position.distanceTo(focus);
+    var halfH = Math.tan((camera.fov * Math.PI / 180) / 2) * depth;
+    var halfW = halfH * camera.aspect;
+
+    var self = this;
+    var staged = [];
+    var live = objects.filter(function (obj) { return !!obj; });
+    var spread = (live.length - 1) / 2;
+
+    live.forEach(function (obj, index) {
+      obj.updateWorldMatrix(true, true);
+      var endPos = new THREE.Vector3();
+      var endQuat = new THREE.Quaternion();
+      var endScale = new THREE.Vector3();
+      obj.matrixWorld.decompose(endPos, endQuat, endScale);
+
+      // Measure the real part where it stands: its world matrices are current,
+      // and a freshly cloned proxy's are not.
+      var box = new THREE.Box3().setFromObject(obj);
+      var size = box.isEmpty() ? new THREE.Vector3() : box.getSize(new THREE.Vector3());
+      var span = Math.max(size.x, size.y, size.z);
+      var wanted = halfH * STAGE_SPAN_FRAC;
+      var boost = (span > 1e-4) ? Math.min(6, Math.max(1, wanted / span)) : 1;
+
+      var proxy = obj.clone(true);
+      proxy.name = (obj.name || 'Part') + '_StagedPreview';
+      proxy.visible = true;
+      proxy.traverse(function (node) {
+        node.visible = true;
+        node.castShadow = false;         // nothing should cast from mid-air
+        node.receiveShadow = false;
+        node.raycast = function () {};   // the real part owns every click
+      });
+
+      // These assemblies keep their origin at the scene origin and carry every
+      // offset on their children, so the origin is nowhere near the part you
+      // can see. Everything below is therefore aimed at the geometric centre
+      // and converted back to an origin position at the end.
+      var centre = box.isEmpty()
+        ? new THREE.Vector3()
+        : box.getCenter(new THREE.Vector3()).sub(endPos);
+
+      var stagePoint = focus.clone()
+        .add(right.clone().multiplyScalar(halfW * STAGE_SIDE_FRAC))
+        .add(up.clone().multiplyScalar(halfH * (STAGE_LIFT_FRAC + (spread - index) * STAGE_STEP_FRAC)));
+      var startPos = stagePoint.clone().sub(centre.clone().multiplyScalar(boost));
+
+      proxy.position.copy(startPos);
+      proxy.quaternion.copy(endQuat);
+      proxy.scale.copy(endScale).multiplyScalar(boost);
+      self.scene.add(proxy);
+      proxy.updateMatrixWorld(true);
+
+      var chip = document.createElement('div');
+      chip.className = 'part-chip';
+      chip.textContent = partLabel(obj);
+      host.appendChild(chip);
+
+      staged.push({
+        obj: obj,
+        proxy: proxy,
+        chip: chip,
+        startPos: startPos,
+        endPos: endPos,
+        startScale: endScale.clone().multiplyScalar(boost),
+        endScale: endScale.clone(),
+        centre: centre,
+        halfY: size.y / 2,
+        trueScale: Math.max(1e-6, endScale.x)
+      });
+    });
+
+    this._stageProxies = staged;
+    return staged;
+  };
+
+  /** Pin each name chip directly under its staged part, in screen space. */
+  UIController.prototype._updatePartStage = function () {
+    var camera = this.cam && this.cam.camera;
+    if (!camera) { return; }
+    var self = this;
+    this._stageProxies.forEach(function (item) {
+      // Follow the underside of the part as the stand-in shrinks back to its
+      // real size: both the centre offset and the height scale with it.
+      var factor = item.proxy.scale.x / item.trueScale;
+      self._v.copy(item.centre).multiplyScalar(factor).add(item.proxy.position);
+      self._v.y -= item.halfY * factor;
+      self._v.project(camera);
+      if (self._v.z > 1) { item.chip.style.opacity = '0'; return; }
+      item.chip.style.left = ((self._v.x * 0.5 + 0.5) * window.innerWidth) + 'px';
+      item.chip.style.top = ((-self._v.y * 0.5 + 0.5) * window.innerHeight) + 'px';
+    });
+  };
+
+  /** Remove the outline shells added by the previous build-step highlight. */
   UIController.prototype._clearBuildHighlight = function () {
     this._highlightBindings.forEach(function (binding) {
-      if (binding.mesh.material === binding.highlight) {
-        binding.mesh.material = binding.original;
+      var outline = binding.outline;
+      if (outline.parent) { outline.parent.remove(outline); }
+      // The geometry is shared with the real mesh, so only the shell's own
+      // material is ours to dispose.
+      if (outline.material && typeof outline.material.dispose === 'function') {
+        outline.material.dispose();
       }
-      binding.clones.forEach(function (material) {
-        if (material && typeof material.dispose === 'function') { material.dispose(); }
-      });
     });
     this._highlightBindings = [];
   };
 
   /**
-   * Give only the newly installed part a steady inspection glow. Materials are
-   * cloned, never mutated, so shared roof and cable materials remain untouched.
-   * The glow deliberately stays still until the learner chooses the next step.
+   * Give only the newly installed part a steady accent outline. Each mesh gets
+   * a back-face shell of its own geometry, scaled out by a near-constant world
+   * thickness, so the accent reads as a rim around the silhouette rather than a
+   * tint across the surface. Nothing on the part's material is read or written,
+   * which is what keeps every original colour intact.
+   * The outline deliberately stays still until the learner chooses the next step.
    */
   UIController.prototype._setBuildHighlight = function (objects) {
     this._clearBuildHighlight();
     var self = this;
     var seen = [];
+    var worldScale = new THREE.Vector3();
     objects.forEach(function (root) {
       if (!root || typeof root.traverse !== 'function') { return; }
       root.traverse(function (mesh) {
-        if (!mesh || !mesh.isMesh || !mesh.material || seen.indexOf(mesh) >= 0) { return; }
+        if (!mesh || !mesh.isMesh || !mesh.geometry) { return; }
+        if (mesh.userData.buildOutline || seen.indexOf(mesh) >= 0) { return; }
         seen.push(mesh);
 
-        var original = mesh.material;
-        var source = Array.isArray(original) ? original : [original];
-        var clones = [];
-        var highlighted = source.map(function (material) {
-          if (!material || typeof material.clone !== 'function') { return material; }
-          var clone = material.clone();
-          clones.push(clone);
-          if (clone.emissive && typeof clone.emissive.setHex === 'function') {
-            clone.emissive.setHex(0xf7941d);
-            clone.emissiveIntensity = Math.max(0.55, clone.emissiveIntensity || 0);
-          } else if (clone.color && typeof clone.color.offsetHSL === 'function') {
-            clone.color.offsetHSL(0, 0.08, 0.12);
-          }
-          clone.needsUpdate = true;
-          return clone;
-        });
-        if (!clones.length) { return; }
+        var geometry = mesh.geometry;
+        if (!geometry.boundingBox) { geometry.computeBoundingBox(); }
+        var box = geometry.boundingBox;
+        if (!box) { return; }
 
-        var highlight = Array.isArray(original) ? highlighted : highlighted[0];
-        mesh.material = highlight;
-        self._highlightBindings.push({
-          mesh: mesh,
-          original: original,
-          highlight: highlight,
-          clones: clones
+        var size = box.getSize(new THREE.Vector3());
+        var centre = box.getCenter(new THREE.Vector3());
+        var span = Math.max(size.x, size.y, size.z);
+        if (!(span > 0)) { return; }
+
+        // Placement animates the part's scale from 0.02 up to 1, so read the
+        // world scale from the parent chain and cancel it out. Otherwise the rim
+        // would grow with the part instead of holding a constant thickness.
+        mesh.updateWorldMatrix(true, false);
+        mesh.getWorldScale(worldScale);
+        var thickness = Math.min(OUTLINE_MAX, Math.max(OUTLINE_MIN, span * OUTLINE_RATIO));
+
+        var scale = new THREE.Vector3(1, 1, 1);
+        ['x', 'y', 'z'].forEach(function (axis) {
+          var extent = size[axis];
+          if (!(extent > 1e-6)) { return; }   // flat face: leave that axis alone
+          var local = thickness / Math.max(1e-6, Math.abs(worldScale[axis]));
+          scale[axis] = (extent + local * 2) / extent;
         });
+
+        var material = new THREE.MeshBasicMaterial({
+          color: OUTLINE_COLOR,
+          side: THREE.BackSide,
+          transparent: true,
+          opacity: OUTLINE_OPACITY,
+          depthWrite: false          // never occlude the part it surrounds
+        });
+        if ('toneMapped' in material) { material.toneMapped = false; }
+
+        var outline = new THREE.Mesh(geometry, material);
+        outline.name = (mesh.name || 'Part') + '_BuildOutline';
+        outline.userData.buildOutline = true;
+        outline.castShadow = false;
+        outline.receiveShadow = false;
+        outline.renderOrder = (mesh.renderOrder || 0) - 1;
+        outline.raycast = function () {};   // component picking must ignore it
+        outline.scale.copy(scale);
+        // Scaling happens about the mesh origin, so shift the shell back to keep
+        // it concentric with the geometry it traces.
+        outline.position.set(
+          centre.x - centre.x * scale.x,
+          centre.y - centre.y * scale.y,
+          centre.z - centre.z * scale.z
+        );
+
+        mesh.add(outline);
+        self._highlightBindings.push({ mesh: mesh, outline: outline });
       });
     });
   };
@@ -589,42 +802,70 @@ window.SRR = window.SRR || {};
   UIController.prototype._animatePlacement = function (objects, done) {
     var token = ++this._placementToken;
     var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    var duration = reduced ? 10 : 620;
-    var stagger = reduced ? 0 : 260;
-    var starts = [];
-    objects.forEach(function (obj, index) {
-      if (!obj) { return; }
-      var target = obj.scale.clone();
-      starts.push({ obj: obj, target: target, delay: index * stagger });
-      obj.scale.set(target.x * 0.02, target.y * 0.02, target.z * 0.02);
-    });
+    var dwell = reduced ? 10 : STAGE_DWELL;
+    var travel = reduced ? 10 : STAGE_TRAVEL;
+    var stagger = reduced ? 0 : 190;
+
+    // Outline first, while the parts still sit at their final scale: the shells
+    // are sized from the world scale they will end at, then ride the same
+    // grow-in animation as the parts they trace.
     this._setBuildHighlight(objects);
+
+    var staged = this._buildPartStage(objects);
+    var starts = [];
+    staged.forEach(function (item, index) {
+      var target = item.obj.scale.clone();
+      starts.push({ obj: item.obj, target: target, delay: index * stagger, staged: item });
+      // Collapsed to a speck, not hidden: `visible` stays true so the build's
+      // own completeness check keeps counting this part.
+      item.obj.scale.set(target.x * 0.001, target.y * 0.001, target.z * 0.001);
+    });
     this._activePlacements = starts;
     var started = performance.now();
     var self = this;
+    var total = dwell + travel + Math.max(0, starts.length - 1) * stagger;
+    var settled = false;
+
+    // The "Next part" button only unlocks when placement finishes, and rAF is
+    // throttled to a standstill in a hidden tab. A learner who switches away
+    // mid-placement must not come back to a build that cannot continue, so a
+    // timer force-settles the step if the frame loop never gets there.
+    function finish() {
+      if (settled || token !== self._placementToken) { return; }
+      settled = true;
+      window.clearTimeout(self._placementTimer);
+      starts.forEach(function (item) { item.obj.scale.copy(item.target); });
+      self._clearPartStage();
+      self._activePlacements = [];
+      done();
+    }
+
     function frame(now) {
       if (token !== self._placementToken) { return; }
       var elapsed = now - started;
       starts.forEach(function (item) {
-        var p = Math.max(0, Math.min(1, (now - started - item.delay) / duration));
+        var s = item.staged;
+        var p = Math.max(0, Math.min(1, (elapsed - dwell - item.delay) / travel));
         var eased = 1 - Math.pow(1 - p, 3);
+        s.proxy.position.lerpVectors(s.startPos, s.endPos, eased);
+        s.proxy.scale.lerpVectors(s.startScale, s.endScale, eased);
+        // The chip names the waiting part; it fades as soon as the part moves.
+        s.chip.style.opacity = String(Math.max(0, 1 - p * 2.6));
         item.obj.scale.set(
-          item.target.x * Math.max(0.02, eased),
-          item.target.y * Math.max(0.02, eased),
-          item.target.z * Math.max(0.02, eased)
+          item.target.x * Math.max(0.001, eased),
+          item.target.y * Math.max(0.001, eased),
+          item.target.z * Math.max(0.001, eased)
         );
       });
-      var total = duration + Math.max(0, starts.length - 1) * stagger;
-      if (now - started < total) { window.requestAnimationFrame(frame); }
-      else {
-        starts.forEach(function (item) { item.obj.scale.copy(item.target); });
-        self._activePlacements = [];
-        done();
-      }
+      self._updatePartStage();
+      if (elapsed < total) { window.requestAnimationFrame(frame); }
+      else { finish(); }
     }
     if (!starts.length) {
       this._placementTimer = window.setTimeout(done, 260);
     } else {
+      this._updatePartStage();
+      this._placementTimer = window.setTimeout(finish, total + 600);
       window.requestAnimationFrame(frame);
     }
   };

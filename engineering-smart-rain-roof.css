@@ -119,3 +119,38 @@
 @media (max-width: 700px), (max-height: 430px) {
   .lab-mark-copy { display: none; }
 }
+
+/* =====================================================================
+   Fit to screen, edge to edge.
+   The decorative Figma board is hidden in this shell, so there is nothing
+   left that needs a 16:9 frame — holding one only produced black bars at
+   the sides. The board now takes the whole viewport and the activity
+   iframe stretches with it, on every screen shape and orientation.
+   ===================================================================== */
+html, body { width: 100%; height: 100%; overflow: hidden; }
+
+.board {
+  width: 100vw !important;
+  height: 100vh !important;
+  max-width: none;
+  max-height: none;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+@supports (height: 100dvh) {
+  .board { height: 100dvh !important; }
+}
+
+/* Portrait phones and tablets keep the same full-bleed rule: the earlier
+   rotate-to-fit trick existed only to save the fixed-ratio frame. */
+@media (max-aspect-ratio: 1/1) {
+  .board {
+    transform: none !important;
+    width: 100vw !important;
+    height: 100vh !important;
+  }
+  @supports (height: 100dvh) {
+    .board { height: 100dvh !important; }
+  }
+}

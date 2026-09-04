@@ -2294,3 +2294,46 @@ body[data-phase="TESTING"] #infoHubButton { display: none; }
     line-height: 1.45;
   }
 }
+
+/* =====================================================================
+   Staged parts — each step's pieces wait beside the house wearing their
+   own name, then fly into position. The chip sits under the part and is
+   never allowed to swallow a click.
+   ===================================================================== */
+#partStage {
+  position: fixed;
+  inset: 0;
+  z-index: 11;
+  pointer-events: none;
+}
+.part-chip {
+  position: absolute;
+  transform: translate(-50%, 12px);
+  white-space: nowrap;
+  max-width: 34vw;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 5px 11px;
+  font-family: "IBM Plex Sans", Poppins, sans-serif;
+  font-size: clamp(.66rem, 1.05vw, .82rem);
+  font-weight: 600;
+  letter-spacing: .04em;
+  color: #fff;
+  background: rgba(9, 24, 39, .9);
+  border: 1px solid rgba(247, 148, 29, .55);
+  border-radius: 999px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, .38);
+  transition: opacity .18s linear;
+}
+.part-chip::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 100%;
+  width: 1px;
+  height: 10px;
+  background: rgba(247, 148, 29, .55);
+}
+@media (prefers-reduced-motion: reduce) {
+  .part-chip { transition: none; }
+}

@@ -502,3 +502,41 @@ body:has(#codeModal:not(.hidden)) #toast {
   .code-actions { margin-top: 6px !important; }
   .code-actions button { min-height: 36px !important; padding: 7px 12px !important; }
 }
+
+/* =====================================================================
+   Arduino code pop-up at three quarters of the screen.
+   The panel used to sit in a 650px column pinned to the right edge, which
+   left most of the display unused while the learner read code. It now
+   opens centred at 75vw x 75vh. Phones keep the full-width sheet defined
+   above — 75% of a small screen is not a readable code editor.
+   ===================================================================== */
+@media (min-width: 761px) {
+  #codeModal {
+    justify-content: center !important;
+    align-items: center !important;
+  }
+  #codePanel {
+    width: 75vw !important;
+    max-width: 75vw !important;
+    height: 75vh !important;
+    max-height: 75vh !important;
+    overflow: auto !important;      /* clipping code is worse than scrolling */
+  }
+}
+
+/* A 75% panel is much taller than the code needs, so distribute instead of
+   leaving a dead band under the button, and let the listing breathe. */
+@media (min-width: 761px) {
+  #codePanel {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(8px, 1.2vh, 16px);
+  }
+  #codePanel > .codewrap {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  #codePanel pre.code { font-size: clamp(.88rem, 1.05vw, 1.1rem); }
+}

@@ -377,3 +377,12 @@ body.dialogue-active #storyVeil {
     transition-duration: .01ms !important;
   }
 }
+
+/* The copy block is anchored from the top only. landing.css also pins a
+   `bottom` for its narrow layout, and between 701px and 760px both applied at
+   once — stretching this section into a 700px-tall empty box laid over the
+   dialogue card. Height follows the content instead, at every width. */
+#startScreen .landing-copy {
+  bottom: auto;
+  height: auto;
+}

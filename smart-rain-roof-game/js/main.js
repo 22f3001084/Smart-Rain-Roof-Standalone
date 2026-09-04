@@ -61,6 +61,7 @@
     lighting: lighting,
     build: build,
     exploded: exploded,
+    scene: scene,
     pickTargets: [
       { key: 'sensor',  objects: [sensor.group] },
       { key: 'servo',   objects: [servo.group] },
