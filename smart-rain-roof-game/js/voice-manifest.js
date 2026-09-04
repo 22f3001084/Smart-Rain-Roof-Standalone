@@ -6,77 +6,92 @@ SRR.VOICE_BASE = 'assets/voice/';
 SRR.VOICE_CLIPS = {
   "build-0": {
     "file": "build-0.mp3",
-    "seconds": 5.73,
+    "seconds": 5.65,
     "who": "aisha"
   },
   "build-1": {
     "file": "build-1.mp3",
-    "seconds": 4.81,
+    "seconds": 5.33,
     "who": "arjun"
   },
   "build-2": {
     "file": "build-2.mp3",
-    "seconds": 4.33,
+    "seconds": 4.93,
     "who": "aisha"
   },
   "build-3": {
     "file": "build-3.mp3",
-    "seconds": 6.93,
+    "seconds": 7.01,
     "who": "arjun"
   },
   "build-4": {
     "file": "build-4.mp3",
-    "seconds": 4.81,
+    "seconds": 5.41,
     "who": "aisha"
   },
   "build-5": {
     "file": "build-5.mp3",
-    "seconds": 5.25,
+    "seconds": 5.89,
     "who": "arjun"
+  },
+  "coach-1": {
+    "file": "coach-1.mp3",
+    "seconds": 7.33,
+    "who": "arjun"
+  },
+  "coach-2": {
+    "file": "coach-2.mp3",
+    "seconds": 16.33,
+    "who": "aisha"
+  },
+  "coach-3": {
+    "file": "coach-3.mp3",
+    "seconds": 10.73,
+    "who": "team"
   },
   "finale": {
     "file": "finale.mp3",
-    "seconds": 9.33,
+    "seconds": 9.57,
     "who": "team"
   },
   "landing-1": {
     "file": "landing-1.mp3",
-    "seconds": 6.65,
+    "seconds": 7.49,
     "who": "aisha"
   },
   "landing-2": {
     "file": "landing-2.mp3",
-    "seconds": 8.37,
+    "seconds": 8.65,
     "who": "arjun"
   },
   "story-0": {
     "file": "story-0.mp3",
-    "seconds": 8.25,
+    "seconds": 7.45,
     "who": "team"
   },
   "story-1": {
     "file": "story-1.mp3",
-    "seconds": 8.49,
+    "seconds": 6.97,
     "who": "aisha"
   },
   "story-2": {
     "file": "story-2.mp3",
-    "seconds": 6.77,
+    "seconds": 7.17,
     "who": "arjun"
   },
   "story-3": {
     "file": "story-3.mp3",
-    "seconds": 7.41,
+    "seconds": 8.33,
     "who": "aisha"
   },
   "story-4": {
     "file": "story-4.mp3",
-    "seconds": 10.57,
+    "seconds": 11.45,
     "who": "arjun"
   },
   "story-5": {
     "file": "story-5.mp3",
-    "seconds": 7.65,
+    "seconds": 9.29,
     "who": "team"
   }
 };

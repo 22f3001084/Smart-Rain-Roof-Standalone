@@ -64,9 +64,18 @@ the words on screen. Needs `GEMINI_API_KEY` in the environment and `ffmpeg` on
 python tools/build_voice.py
 ```
 
-Only changed lines are re-rendered. Then confirm each clip says its line — the
-delivery notes are part of the prompt, so this catches the model reading an
-instruction aloud instead of the line:
+Only changed lines are re-rendered — the change check hashes *how* a line is
+spoken (text, speaker, voice and accent notes), so swapping a voice re-renders
+exactly the clips it affects.
+
+Each render is scored for accent by a model and re-rendered until it clears
+`ACCENT_MIN`, because whether a prebuilt voice takes an accent instruction
+varies from call to call. `tools/auditions/README.md` records how the two
+voices were chosen and why the gate is needed.
+
+Finally, confirm each clip says its line. The delivery notes are part of the
+prompt, so this catches the model reading an instruction aloud instead of the
+line:
 
 ```bash
 python tools/verify_voice.py

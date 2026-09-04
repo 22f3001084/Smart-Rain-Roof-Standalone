@@ -25,9 +25,29 @@ ENDPOINT = 'https://generativelanguage.googleapis.com/v1beta/models/%s:generateC
 PASS_RATIO = 0.85
 
 
+# A spoken script spells numbers out ("ninety degrees") and a transcript writes
+# them as digits ("90 degrees"). Without folding the two together, a perfectly
+# correct clip scores near zero on the diff. Longest forms first so "five
+# hundred" is not eaten by "five".
+NUMBER_WORDS = [
+    ('five hundred', '500'), ('seventeen', '17'), ('ninety', '90'),
+    ('eighty', '80'), ('seventy', '70'), ('sixty', '60'), ('fifty', '50'),
+    ('forty', '40'), ('thirty', '30'), ('twenty', '20'), ('twelve', '12'),
+    ('eleven', '11'), ('ten', '10'), ('nine', '9'), ('eight', '8'),
+    ('seven', '7'), ('six', '6'), ('five', '5'), ('four', '4'),
+    ('three', '3'), ('two', '2'), ('one', '1'), ('zero', '0'),
+]
+
+
 def normalise(text):
     text = text.lower().replace('’', "'").replace('—', ' ').replace('–', ' ')
+    text = text.replace('°', ' degrees ').replace('%', ' percent ')
     text = re.sub(r'[^a-z0-9\' ]+', ' ', text)
+    text = ' '.join(text.split())
+    for word, digit in NUMBER_WORDS:
+        text = re.sub(r'\b%s\b' % word, digit, text)
+    # "milliseconds" vs "ms" is a transcription choice, not a reading error.
+    text = re.sub(r'\bmilliseconds?\b', 'ms', text)
     return ' '.join(text.split())
 
 

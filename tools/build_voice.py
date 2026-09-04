@@ -23,6 +23,7 @@ import hashlib
 import json
 import os
 import re
+import shutil
 import struct
 import subprocess
 import sys
@@ -39,19 +40,42 @@ MANIFEST_JS = os.path.join(GAME, 'js', 'voice-manifest.js')
 MODEL = 'gemini-2.5-flash-preview-tts'
 ENDPOINT = 'https://generativelanguage.googleapis.com/v1beta/models/%s:generateContent' % MODEL
 
-# Two children. Leda and Puck are the youngest-reading voices in the set, which
-# matters more than gender-matching for a KG-to-G3 audience.
-VOICES = {'aisha': 'Leda', 'arjun': 'Puck'}
+# Chosen by audition, not by name: tools/audition_voice.py renders the same line
+# through every candidate and has a model name the accent it hears. Both first
+# picks failed that test - Puck read General American (scored 1, 0, 0) and Leda
+# carried the accent only weakly and inconsistently (scored 3). Iapetus and
+# Sulafat both score 9. Scores are recorded in tools/auditions/README.md.
+VOICES = {'aisha': 'Sulafat', 'arjun': 'Iapetus'}
 
 SAMPLE_RATE = 24000
 MP3_BITRATE = '64k'          # mono speech; keeps the whole voice pack under ~1 MB
 
 # Delivery notes go to the model as a style prompt, never into the audible text.
-STYLE = ('Two Indian schoolchildren building an electronics project together. '
-         'Read warmly and clearly at a relaxed pace, bright but not shouty, '
-         'as if explaining to a friend.')
-STYLE_HAPPY = ('Two Indian schoolchildren who have just succeeded at their '
-               'electronics project. Read with delighted, grateful excitement.')
+# The accent has to be asked for explicitly and per speaker — the prebuilt voices
+# default to General American, and leaving it to a shared "two Indian children"
+# preamble landed Aisha's accent but not Arjun's.
+ACCENT = ('Speak in natural Indian English, the way a child in an English-medium '
+          'school in India speaks: Indian English rhythm and intonation, '
+          'syllable-timed rather than stress-timed, retroflex t and d, a clear '
+          'unaspirated hard "t", no American vowel colouring and no rhotic r. '
+          'This is a native Indian English speaker, not an imitation.')
+
+STYLE = ('You are %s, an Indian schoolchild building an electronics project with '
+         'a friend. ' + ACCENT + ' Read warmly and clearly at a relaxed pace, '
+         'bright but not shouty, as if explaining to a classmate.')
+STYLE_HAPPY = ('You are %s, an Indian schoolchild who has just succeeded at an '
+               'electronics project. ' + ACCENT + ' Read with delighted, grateful '
+               'excitement.')
+
+NAMES = {'aisha': 'Aisha, a girl', 'arjun': 'Arjun, a boy'}
+
+
+def style_for(line, who=None):
+    who = who or line['who']
+    template = STYLE_HAPPY if line.get('happy') else STYLE
+    if who == 'team':
+        return template % 'two Indian schoolchildren, Aisha and Arjun'
+    return template % NAMES.get(who, who)
 
 
 # --------------------------------------------------------------------------- #
@@ -120,15 +144,29 @@ def find_finale_line(index_html):
     return [{'id': 'finale', 'who': 'team', 'text': line.group(1).strip(), 'happy': True}]
 
 
+def find_coach_lines(code_js):
+    block = re.search(r'var COACH = \[(.*?)\n  \];', code_js, re.S)
+    if not block:
+        raise SystemExit('COACH not found in js/arduino-code.js')
+    entries = re.findall(r"id: '([\w-]+)',\s*\n\s*who: '(\w+)',.*?say: '(.*?)'\s*\n",
+                         block.group(1), re.S)
+    if len(entries) != 3:
+        raise SystemExit('expected 3 COACH beats, parsed %d' % len(entries))
+    return [{'id': cid, 'who': who, 'text': js_string(say)}
+            for cid, who, say in entries]
+
+
 def collect_lines():
     ui_js = read(os.path.join(GAME, 'js', 'ui.js'))
     story_js = read(os.path.join(GAME, 'js', 'story.js'))
+    code_js = read(os.path.join(GAME, 'js', 'arduino-code.js'))
     index_html = read(os.path.join(GAME, 'index.html'))
 
     lines = []
     lines += find_landing_lines(index_html, ui_js)
     lines += find_build_lines(ui_js)
     lines += find_story_lines(story_js)
+    lines += find_coach_lines(code_js)
     lines += find_finale_line(index_html)
 
     for line in lines:
@@ -162,26 +200,37 @@ def split_for_duo(text):
 # finishReason=OTHER — a refusal to speak that has nothing to do with the words,
 # since the same text succeeds on a re-ask. Rewording the *instruction* around
 # the line shakes it loose; the spoken text itself is never altered.
+#
+# Every variant MUST carry {style}. An earlier version included a bare-text
+# variant, and since most lines need at least one retry, most of the pack ended
+# up rendered with no accent instruction at all — the voices fell back to
+# General American. Vary the wording of the instruction, never its presence.
 WRAPPERS = [
     '{style}\nSay this: {text}',
-    '{text}',
     '{style}\n\n{text}',
-    'Read this line aloud clearly: {text}',
+    '{style}\nRead this line aloud exactly as written: {text}',
+    '{style}\nNow say this sentence in that voice and accent: {text}',
 ]
 
 
 def request_body(line, variant=0):
-    style = STYLE_HAPPY if line.get('happy') else STYLE
+    style = style_for(line)
     if line['who'] == 'team':
         turns = split_for_duo(line['text'])
         if len(turns) == 1:
             who, text = turns[0][0], turns[0][1]
-            prompt = WRAPPERS[variant % len(WRAPPERS)].format(style=style, text=text)
+            prompt = WRAPPERS[variant % len(WRAPPERS)].format(
+                style=style_for(line, who), text=text)
             speech = {'voiceConfig': {'prebuiltVoiceConfig': {'voiceName': VOICES[who]}}}
         else:
             script = '\n'.join('%s: %s' % (w.capitalize(), t) for w, t in turns)
-            prompt = ('%s\nRead this conversation:\n%s' % (style, script)
-                      if variant % 2 == 0 else script)
+            # Both children must be told to keep the accent; a duo prompt that
+            # names only the scene lets the second voice drift to American.
+            prompt = ('%s\nBoth speakers are Indian English speakers.\n'
+                      'Read this conversation:\n%s' % (style, script)
+                      if variant % 2 == 0
+                      else '%s\nRead this conversation, both parts in Indian '
+                           'English:\n%s' % (style, script))
             speech = {'multiSpeakerVoiceConfig': {'speakerVoiceConfigs': [
                 {'speaker': 'Aisha',
                  'voiceConfig': {'prebuiltVoiceConfig': {'voiceName': VOICES['aisha']}}},
@@ -237,16 +286,110 @@ def attempt(line, key, variant=0):
     return base64.b64decode(inline['data'])
 
 
-def synthesize(line, key, tries=8):
+def synthesize(line, key, tries=8, offset=0):
     last = None
     for i in range(tries):
-        got = attempt(line, key, i)
+        got = attempt(line, key, offset + i)
         if isinstance(got, bytes):
             return got
         last = got
         print('       retry %d/%d after: %s' % (i + 1, tries - 1, last))
         time.sleep(min(20, 2 + 3 * i))
     raise SystemExit('%s: giving up after %d tries — %s' % (line['id'], tries, last))
+
+
+# --------------------------------------------------------------------------- #
+# Accent gate
+# --------------------------------------------------------------------------- #
+
+JUDGE_MODEL = 'gemini-2.5-flash'
+JUDGE_ENDPOINT = ('https://generativelanguage.googleapis.com/v1beta/models/%s:generateContent'
+                  % JUDGE_MODEL)
+ACCENT_MIN = 6          # out of 10; below this the clip is re-rendered
+ACCENT_TRIES = 8
+
+
+def judge_accent(path, key):
+    """Name the accent in a rendered clip.
+
+    Asking the model to *identify* the accent rather than confirm it keeps the
+    answer honest — "is this Indian?" invites a yes.
+    """
+    with open(path, 'rb') as fh:
+        audio = base64.b64encode(fh.read()).decode('ascii')
+    prompt = (
+        "Listen to this speech sample and identify the speaker's accent.\n"
+        'Reply as strict JSON only, no prose:\n'
+        '{"accent": "<the accent you hear, e.g. Indian English, General American, '
+        'British RP>", "indian_score": <0-10 integer, how clearly Indian English '
+        'the accent sounds>, "age": "<child, teenager or adult>", '
+        '"notes": "<one short phrase>"}'
+    )
+    body = {
+        'contents': [{'parts': [
+            {'text': prompt},
+            {'inlineData': {'mimeType': 'audio/mp3', 'data': audio}},
+        ]}],
+        'generationConfig': {'temperature': 0},
+    }
+    req = urllib.request.Request(
+        JUDGE_ENDPOINT,
+        data=json.dumps(body).encode('utf-8'),
+        headers={'Content-Type': 'application/json', 'x-goog-api-key': key},
+        method='POST',
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=180) as resp:
+            payload = json.load(resp)
+    except urllib.error.HTTPError as exc:
+        return {'error': 'HTTP %d' % exc.code, 'indian_score': -1}
+
+    cand = (payload.get('candidates') or [{}])[0]
+    parts = (cand.get('content') or {}).get('parts') or []
+    text = ''.join(p.get('text', '') for p in parts).strip()
+    match = re.search(r'\{.*\}', text, re.S)
+    if not match:
+        return {'error': 'unparsable verdict', 'indian_score': -1}
+    try:
+        verdict = json.loads(match.group(0))
+    except ValueError:
+        return {'error': 'bad JSON', 'indian_score': -1}
+    if not isinstance(verdict.get('indian_score'), int):
+        verdict['indian_score'] = -1
+    return verdict
+
+
+def render_clip(line, key, mp3, min_score=ACCENT_MIN, tries=ACCENT_TRIES):
+    """Render until the accent actually lands.
+
+    Whether a prebuilt voice takes the Indian English instruction varies from
+    call to call — the same voice and prompt can come back General American. One
+    render is therefore a coin toss, so each attempt is judged and the best is
+    kept. This is what makes the shipped accent reproducible rather than lucky.
+    """
+    best_score, best_verdict = None, None
+    with tempfile.TemporaryDirectory() as tmp:
+        keep = os.path.join(tmp, 'best.mp3')
+        for i in range(tries):
+            to_mp3(synthesize(line, key, offset=i), mp3)
+            if min_score <= 0:
+                return {'indian_score': None, 'accent': 'not checked'}
+
+            verdict = judge_accent(mp3, key)
+            score = verdict['indian_score']
+            if best_score is None or score > best_score:
+                best_score, best_verdict = score, verdict
+                shutil.copyfile(mp3, keep)
+            if score >= min_score:
+                return verdict
+            print('       accent %s (%s) below %d, re-rendering'
+                  % (score, verdict.get('accent', '?'), min_score))
+
+        # Nothing cleared the bar: ship the closest attempt and say so loudly.
+        shutil.copyfile(keep, mp3)
+        print('       WARNING kept best of %d at accent %s (%s)'
+              % (tries, best_score, best_verdict.get('accent', '?')))
+        return best_verdict
 
 
 def wav_bytes(pcm):
@@ -281,6 +424,8 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--force', action='store_true', help='re-render every clip')
     ap.add_argument('--only', help='comma-separated clip ids')
+    ap.add_argument('--accent-min', type=int, default=ACCENT_MIN,
+                    help='minimum Indian-English score to accept (0 disables the check)')
     args = ap.parse_args()
 
     key = os.environ.get('GEMINI_API_KEY')
@@ -298,18 +443,30 @@ def main():
     except (OSError, ValueError):
         state = {}
 
+    accents = {}
     manifest = []
     for line in lines:
         mp3 = os.path.join(VOICE_DIR, line['id'] + '.mp3')
-        digest = hashlib.sha256(line['text'].encode('utf-8')).hexdigest()[:16]
+        # Hash how the line is spoken, not just what it says, so changing a
+        # voice or the accent notes re-renders exactly the clips it affects.
+        recipe = json.dumps({
+            'text': line['text'],
+            'who': line['who'],
+            'voices': VOICES if line['who'] == 'team' else {line['who']: VOICES[line['who']]},
+            'style': style_for(line),
+        }, sort_keys=True)
+        digest = hashlib.sha256(recipe.encode('utf-8')).hexdigest()[:16]
         stale = args.force or not os.path.exists(mp3) or state.get(line['id']) != digest
         if wanted is not None and line['id'] not in wanted:
             stale = False
 
         if stale:
             print('render %-10s (%s) %s' % (line['id'], line['who'], line['text'][:58]))
-            to_mp3(synthesize(line, key), mp3)
+            verdict = render_clip(line, key, mp3, min_score=args.accent_min)
+            print('       accent %s (%s)' % (verdict.get('indian_score'),
+                                             verdict.get('accent', '?')))
             state[line['id']] = digest
+            accents[line['id']] = verdict
         else:
             print('keep   %-10s' % line['id'])
 
@@ -322,6 +479,9 @@ def main():
 
     with open(state_path, 'w', encoding='utf-8') as fh:
         json.dump(state, fh, indent=2, sort_keys=True)
+    if accents:
+        with open(os.path.join(VOICE_DIR, '.accents.json'), 'w', encoding='utf-8') as fh:
+            json.dump(accents, fh, indent=2, sort_keys=True)
 
     body = json.dumps({m['id']: {'file': m['file'], 'who': m['who'], 'seconds': m['seconds']}
                        for m in manifest}, indent=2, sort_keys=True)

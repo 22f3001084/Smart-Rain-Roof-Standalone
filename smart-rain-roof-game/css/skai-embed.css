@@ -540,3 +540,20 @@ body:has(#codeModal:not(.hidden)) #toast {
   }
   #codePanel pre.code { font-size: clamp(.88rem, 1.05vw, 1.1rem); }
 }
+
+/* When Aisha and Arjun set the two values themselves on the third trial, the
+   numbers have to be seen changing — otherwise the upload looks like it came
+   out of nowhere. */
+@keyframes autoSetFlash {
+  0%   { background: rgba(247, 148, 29, .9); color: #10263d; transform: scale(1); }
+  35%  { background: rgba(247, 148, 29, .9); color: #10263d; transform: scale(1.18); }
+  100% { background: transparent; transform: scale(1); }
+}
+#codePanel .auto-set {
+  display: inline-block;
+  border-radius: 5px;
+  animation: autoSetFlash 1.15s ease-out 2;
+}
+@media (prefers-reduced-motion: reduce) {
+  #codePanel .auto-set { animation: none; outline: 2px solid var(--landing-orange, #f7941d); }
+}

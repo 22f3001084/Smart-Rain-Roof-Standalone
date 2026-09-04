@@ -16,3 +16,6 @@ node_modules/
 # python
 __pycache__/
 *.pyc
+
+# voice audition samples (working files)
+tools/auditions/*.mp3

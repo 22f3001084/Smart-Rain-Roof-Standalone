@@ -8,6 +8,37 @@ window.SRR = window.SRR || {};
 
   function $(id) { return document.getElementById(id); }
 
+  /* What the makers say after a wrong trial, and it escalates on purpose.
+     Trial 1 is a nudge and nothing else. Trial 2 gives the answer away in
+     words. Trial 3 stops asking the learner to try: Aisha and Arjun set the
+     two values themselves and upload, so nobody can get stuck here — the
+     lesson is the reasoning, not the guessing.
+     `say` is the spoken line and is voiced from assets/voice/<id>.mp3;
+     tools/build_voice.py parses these strings out of this array. */
+  var COACH = [
+    {
+      id: 'coach-1',
+      who: 'arjun',
+      pill: 'Oops — not that pair. Try again, and change only one number this time.',
+      say: 'Oops! Not yet. Try again, and change only one number this time, so you can see what that number really does.'
+    },
+    {
+      id: 'coach-2',
+      who: 'aisha',
+      pill: 'Hint: 90° is the perfect angle, and the delay needs to be at least 500 ms.',
+      say: 'Here is the hint. Ninety degrees is the perfect angle, because that is what swings the roof the whole way across the washing. And the delay needs to be at least five hundred milliseconds, or the roof twitches before it is sure that it is raining.'
+    },
+    {
+      id: 'coach-3',
+      who: 'team',
+      pill: 'Three tries is plenty — we will set 90° and 500 ms and upload it for you.',
+      say: 'That is three tries, so let us do this one together. We are setting the angle to ninety degrees and the delay to five hundred milliseconds. Now watch the roof.'
+    }
+  ];
+
+  var ANSWER_DEG = 90;
+  var ANSWER_DEL = 500;
+
   function CodePanel(opts) {
     this.c = opts.controller;
     this.weather = opts.weather;
@@ -60,10 +91,12 @@ window.SRR = window.SRR || {};
     $('deldn').disabled = this.del <= 0;
     $('delup').disabled = this.del >= 2000;
     $('codeAttempts').textContent = this.found
-      ? 'Solved in ' + this.tests + (this.tests === 1 ? ' trial' : ' trials')
+      ? (this._autoSolved
+          ? 'Aisha and Arjun finished it for you'
+          : 'Solved in ' + this.tests + (this.tests === 1 ? ' trial' : ' trials'))
       : this.tests >= 3
-        ? 'Coach unlocked after ' + this.tests + ' trials'
-        : 'Trial ' + this.tests + ' of 3 before the coach unlocks';
+        ? 'Aisha and Arjun took over on trial 3'
+        : 'Trial ' + this.tests + ' of 3 \u2014 then Aisha and Arjun step in';
   };
 
   CodePanel.prototype.open = function () {
@@ -165,25 +198,76 @@ window.SRR = window.SRR || {};
       '<p class="code-pill ' + covNote.c + '">' + covNote.t + '</p>'
       + '<p class="code-pill ' + delNote.c + '">' + delNote.t + '</p>';
 
-    if (deg === 90 && del === 500) { this._success(); return true; }
+    if (deg === ANSWER_DEG && del === ANSWER_DEL) { this._success(); return true; }
+
+    var beat = COACH[Math.min(this.tests, COACH.length) - 1];
+    var last = this.tests >= COACH.length;
+    $('codeReport').innerHTML +=
+      '<p class="code-pill coach' + (last ? ' unlocked' : '') + '">'
+      + '<b>' + (beat.who === 'team' ? 'Aisha &amp; Arjun' : cap(beat.who)) + ':</b> '
+      + beat.pill + '</p>';
+    SRR.playVoice(beat.id);
 
     if (this.tests === 1) {
-      $('codeReport').innerHTML +=
-        '<p class="code-pill coach">Trial 1: change one value at a time. Angle changes coverage; delay changes reaction time.</p>';
-      this.ui.toast('Trial 1 logged - use the result to make your next prediction');
+      this.ui.toast('Trial 1 logged — change one value and try again');
     } else if (this.tests === 2) {
-      $('codeReport').innerHTML +=
-        '<p class="code-pill coach">Trial 2: compare this result with trial 1. Move toward more coverage and a quicker response.</p>';
-      this.ui.toast('Trial 2 logged - one more experiment unlocks the coach');
+      $('codeHint').innerHTML = '<b>Hint:</b> <strong>90°</strong> is the perfect angle, '
+        + 'and the delay must be at least <strong>500 ms</strong>.';
+      this.ui.toast('Trial 2 logged — 90° and at least 500 ms');
     } else {
-      $('codeHint').innerHTML = '<b>Coach answer:</b> select <strong>90°</strong> for the servo angle and <strong>500 ms</strong> for the delay.';
-      $('codeReport').innerHTML +=
-        '<p class="code-pill coach unlocked">Coach unlocked: set the angle to 90° and the delay to 500 ms, then upload again.</p>';
-      this.ui.toast('Coach unlocked - select 90° and 500 ms');
+      $('codeHint').innerHTML = '<b>Aisha &amp; Arjun took over:</b> angle '
+        + '<strong>90°</strong>, delay <strong>500 ms</strong>.';
+      this.ui.toast('Aisha and Arjun are setting it themselves');
+      this._autoSolve();
     }
     this._sync();
     return false;
   };
+
+  /**
+   * Third wrong trial: set the answer and upload it, rather than leaving the
+   * learner to re-enter numbers they have already been told. The values are
+   * flashed as they change so the handover is visible, and the wait is the
+   * length of the spoken line so the run does not talk over itself.
+   */
+  CodePanel.prototype._autoSolve = function () {
+    if (this._autoSolved) { return; }
+    this._autoSolved = true;
+    var self = this;
+
+    this.deg = ANSWER_DEG;
+    this.del = ANSWER_DEL;
+    this._sync();
+    ['degv', 'delv'].forEach(function (id) {
+      var el = $(id);
+      if (!el) { return; }
+      el.classList.remove('auto-set');
+      // Reflow between removal and re-add, or the animation will not restart.
+      void el.offsetWidth;
+      el.classList.add('auto-set');
+    });
+
+    // runTest() refuses to start while a previous run is still settling, so
+    // waiting a fixed delay and calling it once can drop the upload silently —
+    // and the learner has just been promised it. Keep asking until it takes.
+    var wait = Math.max(2600, (SRR.voiceLength && SRR.voiceLength('coach-3') * 1000) || 0);
+    var deadline = Date.now() + 25000;
+
+    function upload() {
+      if (self.found) { return; }
+      if (self._timer || self.ui.gameState.testRunning) {
+        if (Date.now() < deadline) { window.setTimeout(upload, 300); }
+        return;
+      }
+      $('codeReport').innerHTML +=
+        '<p class="code-pill run">Uploading 90° and 500 ms…</p>';
+      self.runTest();
+    }
+
+    window.setTimeout(upload, wait + 400);
+  };
+
+  function cap(word) { return word.charAt(0).toUpperCase() + word.slice(1); }
 
   CodePanel.prototype._success = function () {
     if (this.found) { return true; }

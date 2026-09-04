@@ -1,0 +1,110 @@
+{
+  "build-0": {
+    "accent": "Indian English",
+    "age": "adult",
+    "indian_score": 7,
+    "notes": "Clear, educated Indian English"
+  },
+  "build-1": {
+    "accent": "Indian English",
+    "age": "adult",
+    "indian_score": 6,
+    "notes": "Clear, rhotic, and precise articulation."
+  },
+  "build-2": {
+    "accent": "Indian English",
+    "age": "adult",
+    "indian_score": 7,
+    "notes": "Clear, educated pronunciation with rhotic 'r' sounds."
+  },
+  "build-3": {
+    "accent": "Indian English",
+    "age": "adult",
+    "indian_score": 8,
+    "notes": "Clear, articulate speech with light rhoticity."
+  },
+  "build-4": {
+    "accent": "Indian English",
+    "age": "adult",
+    "indian_score": 6,
+    "notes": "Clear, deliberate speech with rhotic 'r' and distinct 't' sounds."
+  },
+  "build-5": {
+    "accent": "Indian English",
+    "age": "adult",
+    "indian_score": 9,
+    "notes": "Clear retroflex 'r' and monophthongal vowels."
+  },
+  "coach-1": {
+    "accent": "Indian English",
+    "age": "adult",
+    "indian_score": 9,
+    "notes": "Clear and consistent Indian English pronunciation."
+  },
+  "coach-2": {
+    "accent": "Indian English",
+    "age": "adult",
+    "indian_score": 9,
+    "notes": "Clear Indian English with rhoticity and characteristic vowel sounds."
+  },
+  "coach-3": {
+    "accent": "Indian English",
+    "age": "adult",
+    "indian_score": 9,
+    "notes": "Both speakers exhibit clear retroflex 'r' sounds and unaspirated plosives."
+  },
+  "finale": {
+    "accent": "Indian English",
+    "age": "adult",
+    "indian_score": 9,
+    "notes": "Clear non-rhoticity and syllable-timed rhythm."
+  },
+  "landing-1": {
+    "accent": "Indian English",
+    "age": "adult",
+    "indian_score": 6,
+    "notes": "Subtle Indian English features, clear pronunciation."
+  },
+  "landing-2": {
+    "accent": "Indian English",
+    "age": "adult",
+    "indian_score": 8,
+    "notes": "Clear, rhotic pronunciation with distinct 't' sounds"
+  },
+  "story-0": {
+    "accent": "Indian English",
+    "age": "adult",
+    "indian_score": 9,
+    "notes": "Clear, distinct Indian English pronunciation from both speakers."
+  },
+  "story-1": {
+    "accent": "Indian English",
+    "age": "adult",
+    "indian_score": 7,
+    "notes": "Clear, articulate speech with moderate Indian English characteristics."
+  },
+  "story-2": {
+    "accent": "Indian English",
+    "age": "adult",
+    "indian_score": 9,
+    "notes": "Clear rhotic accent with retroflex 'r' and distinct 't' sounds."
+  },
+  "story-3": {
+    "accent": "Indian English",
+    "age": "adult",
+    "indian_score": 8,
+    "notes": "Clear and articulate pronunciation"
+  },
+  "story-4": {
+    "accent": "Indian English",
+    "age": "adult",
+    "indian_score": 7,
+    "notes": "Clear, rhotic, and articulate speech with consistent rhythm."
+  },
+  "story-5": {
+    "accent": "Indian English",
+    "age": "adult",
+    "indian_score": 8,
+    "notes": "Clear Indian English pronunciation and intonation from both speakers."
+  }
+}
