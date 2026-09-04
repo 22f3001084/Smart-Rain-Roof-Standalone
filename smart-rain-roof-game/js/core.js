@@ -40,7 +40,7 @@ window.SRR = window.SRR || {};
     // Rooftop sensor and controller enclosure. The sensor sits at the terrace-
     // side corner beside the folding roof, directly above the control station.
     SENSOR_X: 0.40, SENSOR_Z: -2.20,
-    SENSOR_MOUNT_H: 0.17,   // 17 cm shaped stand above the finished roof
+    SENSOR_MOUNT_H: 0.3048, // 1 ft bare rod above the finished roof, no base
     BOX_Z: -2.20
   };
 
@@ -140,7 +140,7 @@ window.SRR = window.SRR || {};
     court:       { pos: [10.5, 8.6, 9.0],  target: [2.40, 3.40, 0.20] },
     canopy:      { pos: [8.0, 8.2, 7.4],   target: [2.40, 4.70, 0.90] },
     servo:       { pos: [3.9, 6.0, 5.6],   target: [0.95, 4.80, 2.80] },
-    sensor:      { pos: [5.6, 7.45, -0.20], target: [L.SENSOR_X, L.ROOF_SLAB_Y + 0.34, L.SENSOR_Z] },
+    sensor:      { pos: [5.6, 7.45, -0.20], target: [L.SENSOR_X, L.ROOF_SLAB_Y + 0.46, L.SENSOR_Z] },
     clothes:     { pos: [6.4, 5.4, 4.8],   target: [2.60, 3.55, 1.10] },
     electronics: { pos: [5.8, 6.2, 0.25],  target: [0.72, 4.15, L.BOX_Z] },
     // Full-house composition shifted left to leave a safe workspace for the

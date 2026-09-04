@@ -17,8 +17,8 @@ window.SRR = window.SRR || {};
   var WALL = L.UPPER_X1;                 // court face of the first-floor wall
 
   /* ---------------- rain sensor ---------------- *
-   * FC-37 style plate held 17 cm above the terrace-side roof corner on a
-   * compact tapered mount. Its outer edge remains directly above the controller.
+   * FC-37 style plate held one foot above the terrace-side roof corner on a
+   * bare round rod. Its outer edge remains directly above the controller.
    * ------------------------------------------- */
   function RainSensor(scene) {
     this.detected = false;
@@ -32,24 +32,18 @@ window.SRR = window.SRR || {};
     var roofTop = L.ROOF_SLAB_Y + 0.16;
     var mountH = L.SENSOR_MOUNT_H;
 
-    // Broad foot + tapered weatherproof riser: the sensor is raised enough to
-    // catch the first drops, without becoming an unstable pole.
-    var foot = box(0.36, 0.035, 0.36, std(0x263b4d, 0.62), 'Sensor_Foot');
-    foot.position.set(px, roofTop + 0.0175, pz);
-    foot.castShadow = true;
-    foot.receiveShadow = true;
-    this.group.add(foot);
-
-    var riser = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.17, 0.24, mountH - 0.035, 4, 1, false),
-      std(0x536d7d, 0.58)
+    // A single round rod straight off the roof, no base plate under it: the
+    // sensor stands a foot clear of the slab so the first drops reach it before
+    // anything splashing off the roof does.
+    var rod = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.022, 0.022, mountH, 20, 1, false),
+      std(0x8d97a1, 0.35, 0.55)
     );
-    riser.name = 'Sensor_Tapered_Mount_17cm';
-    riser.position.set(px, roofTop + 0.035 + (mountH - 0.035) * 0.5, pz);
-    riser.rotation.y = Math.PI / 4;
-    riser.castShadow = true;
-    riser.receiveShadow = true;
-    this.group.add(riser);
+    rod.name = 'Sensor_Rod_1ft';
+    rod.position.set(px, roofTop + mountH * 0.5, pz);
+    rod.castShadow = true;
+    rod.receiveShadow = true;
+    this.group.add(rod);
 
     this.plate = new THREE.Group();
     this.plate.name = 'Rain_Sensor_Plate';
@@ -75,8 +69,8 @@ window.SRR = window.SRR || {};
     led.position.set(0.14, 0.024, 0.098);
     this.plate.add(led);
 
-    // The cable leaves the board, follows the shaped mount down and only then
-    // turns across the roof. Every segment touches a physical support.
+    // The cable leaves the board, runs down the rod and only then turns across
+    // the roof. Every segment touches a physical support.
     this.wireAnchor = new THREE.Vector3(px + 0.18, roofTop + mountH + 0.012, pz);
   }
 
@@ -239,8 +233,8 @@ window.SRR = window.SRR || {};
     var runA = [
       parts.sensor.wireAnchor,
       new THREE.Vector3(L.SENSOR_X + 0.12, roofSurfaceY + L.SENSOR_MOUNT_H - 0.008, L.BOX_Z),
-      new THREE.Vector3(L.SENSOR_X + 0.17, roofSurfaceY + 0.035, L.BOX_Z),
-      new THREE.Vector3(L.SENSOR_X + 0.17, roofCableY, L.BOX_Z),
+      new THREE.Vector3(L.SENSOR_X + 0.045, roofSurfaceY + L.SENSOR_MOUNT_H - 0.06, L.BOX_Z),
+      new THREE.Vector3(L.SENSOR_X + 0.045, roofCableY, L.BOX_Z),
       new THREE.Vector3(L.UPPER_X1 - 0.02, roofCableY, L.BOX_Z),
       new THREE.Vector3(lane, roofCableY, L.BOX_Z),
       new THREE.Vector3(lane, parts.arduino.anchorSensor.y + 0.16, L.BOX_Z),
@@ -252,7 +246,7 @@ window.SRR = window.SRR || {};
     // Straight segments prevent a spline from bowing above the roof at the edge.
     this._wireSegments(this.sensorRun, runA, 0xaacf3a, 0.014);
     this._clips(this.sensorRun, [
-      [L.SENSOR_X + 0.145, roofSurfaceY + 0.10, L.BOX_Z],
+      [L.SENSOR_X + 0.045, roofSurfaceY + 0.12, L.BOX_Z],
       [L.UPPER_X1 - 0.03, roofCableY, L.BOX_Z],
       [lane, parts.arduino.anchorSensor.y + 0.35, L.BOX_Z]
     ], 'Sensor');

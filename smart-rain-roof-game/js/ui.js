@@ -69,7 +69,7 @@ window.SRR = window.SRR || {};
     'The clothes are already drying on the terrace. Now let’s build the system that protects them.',
     'Fix the hinge and blue servo together. This becomes the moving joint.',
     'Fit the folding roof and connect its linkage rod to the servo.',
-    'Raise the rain sensor about 17 centimetres on the shaped roof mount. Keep its copper tracks facing the sky.',
+    'Stand the rain sensor a foot above the roof on its round rod. Keep its copper tracks facing the sky.',
     'Build the control station with the Arduino, breadboard and battery.',
     'Clip in both signal cables. Hardware complete — now discover the correct code.'
   ];
@@ -79,9 +79,10 @@ window.SRR = window.SRR || {};
       title: 'Rain Sensor (FC-37)',
       body: 'Exposed traces on the green board bridge when water lands on them, '
           + 'pulling the output low. The Arduino reads that as "rain detected". '
-          + 'It stands about 17 cm above the terrace-side roof corner on a short, '
-          + 'tapered base directly above the Arduino. The green cable follows the '
-          + 'mount down before lying flat against the roof and wall.'
+          + 'It stands one foot above the terrace-side roof corner on a bare round '
+          + 'rod directly above the Arduino, with nothing underneath it to catch '
+          + 'splash. The green cable follows the rod down before lying flat '
+          + 'against the roof and wall.'
     },
     arduino: {
       title: 'Arduino Uno R3',
@@ -125,7 +126,7 @@ window.SRR = window.SRR || {};
 
   var L = SRR.LAYOUT;
   var LABELS = [
-    { key: 'sensor',  text: 'Rain Sensor',        pos: [L.SENSOR_X, L.ROOF_SLAB_Y + 0.48, L.SENSOR_Z] },
+    { key: 'sensor',  text: 'Rain Sensor',        pos: [L.SENSOR_X, L.ROOF_SLAB_Y + 0.62, L.SENSOR_Z] },
     { key: 'arduino', text: 'Arduino Controller', pos: [L.UPPER_X1 + 0.35, L.COURT_Y + 1.45, L.BOX_Z] },
     { key: 'servo',   text: 'SG90 Servo Motor',   pos: [L.UPPER_X1 + 0.45, L.PIVOT_Y - 0.60, L.HINGE_Z - 0.42] },
     { key: 'roof',    text: 'Folding Awning',     pos: [2.30, L.PIVOT_Y + 0.40, 1.60] },

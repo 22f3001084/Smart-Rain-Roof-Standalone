@@ -37,11 +37,11 @@ f613192ef282e93bf39404d4456ed2dde800906fc2c9fd029eef6c4e9a1ae0a1  smart-rain-roo
 3bd23c464d04a7413988a7aabeb6c85b7b5a6e55a96068fd58cb4c45de5ac996  smart-rain-roof-game/css/landing.css
 4e4193c673ec0215f5e3d565471b8c777a979618bfe2ffeb9113c72661e47760  smart-rain-roof-game/css/skai-embed.css
 4b956f193b00f4ac00d5bb15ee388354fb1b21f0ffce9926561cf1d4aece02c3  smart-rain-roof-game/css/style.css
-f849620133db02b926ced640dad6c92fe92dc5ab736a8b795a96055c1b1b80d7  smart-rain-roof-game/index.html
+99117b7120ddf38ae4edde15a95210f5c9f6b81ff760e3abf1c1359af9366212  smart-rain-roof-game/index.html
 385fda864cdb6a3b67d518040dc25b097789cef017175483a60009f093af67f0  smart-rain-roof-game/js/arduino-code.js
-caee26ec85b7fb7f6ff49977fcf3b868de046c149993ccdfe8b0d29dd4a5f055  smart-rain-roof-game/js/build.js
-3c747eda79af2e830af6e2bf190d8c803dfdcc06c26b0f71887594d5b713317b  smart-rain-roof-game/js/core.js
-93cd07739d9345b1b0e9d783517d99cc1fdb7814eacbda04908db033a299fab4  smart-rain-roof-game/js/electronics.js
+3a3f1593817f39e29904bd39d0e4b8a42e30defe8a2659cf258f3b64bf3d036f  smart-rain-roof-game/js/build.js
+1703322f3342f2d7135f0c5cf9c7a20abb17cd6ea60e753ffc685fc146f805f9  smart-rain-roof-game/js/core.js
+16e3330ce2cee00fca8329e6f8479a9c84989f6fdcc9eb254cc44d0e68eaba3a  smart-rain-roof-game/js/electronics.js
 a1748bb24a8ce3c35a4431c255cc74b60b84cf8586b360896800ad17a9974b46  smart-rain-roof-game/js/environment.js
 0f3c4d97acdc33e1c2f07e0a86f4b744538bd1f29224f1da5c0e803929222f87  smart-rain-roof-game/js/helpers.js
 266f6db61b83025c111e87b3d3b07731c7ef734f18e7cba1cd3fb423e78672a5  smart-rain-roof-game/js/main.js
@@ -52,7 +52,7 @@ a1748bb24a8ce3c35a4431c255cc74b60b84cf8586b360896800ad17a9974b46  smart-rain-roo
 0b5560ae6a121b340c8dd7c439cb5e544cae8a54b95a76b4ba0a7138d0bb9963  smart-rain-roof-game/js/simulation.js
 892e8c332f4278935388f448df71ff738d978a7fe6063203739280fad82219d5  smart-rain-roof-game/js/story.js
 9477ca440f80197096a644949a465368079e5d7c6fb2e6dbb2bc6dd3e3bb7227  smart-rain-roof-game/js/textures.js
-6de0b404d08665063df9b0306449c24fdb1e7f4cf92fd303090a37fbc59488d8  smart-rain-roof-game/js/ui.js
+679ea1114be6db808b2db19b72cbb3947b847384afafd77eb5b78ca8ff0458de  smart-rain-roof-game/js/ui.js
 03ddfca485d9c64a91bfcab69858491d390d2d8e29b5df4461af0a54c66cfda0  smart-rain-roof-game/js/weather.js
 170c6789f43217c96b3170f4b42fafe135de7f7cd48497a4218f9757ee1d49fa  smart-rain-roof-game/vendor/three.min.js
 a7ffcc2952927ef8b8b0b325ce5696b11a5e310f8fc2c4ffd7f18f7eff997c09  smart-rain-roof-shell.js

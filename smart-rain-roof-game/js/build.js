@@ -66,10 +66,11 @@ window.SRR = window.SRR || {};
       },
       {
         title: 'Place the Rain Sensor',
-        need: ['Rain sensor board', '17 cm tapered mount', 'Mounting screws'],
-        say: 'Fix the shaped mount at the roof corner above the Arduino, then place '
-           + 'the sensor on top. The short 17 cm rise catches drops early while its '
-           + 'wide base stays stable. Keep the copper tracks facing the sky.',
+        need: ['Rain sensor board', '1 ft round rod', 'Mounting screws'],
+        say: 'Stand the round rod at the roof corner above the Arduino, then fit the '
+           + 'sensor on top. There is no base under it — the bare foot-high rod '
+           + 'keeps the board clear of anything splashing off the roof. Keep the '
+           + 'copper tracks facing the sky.',
         show: [p.sensor.group],
         view: 'sensor'
       },
@@ -145,10 +146,10 @@ window.SRR = window.SRR || {};
       },
       {
         title: 'Place the sensor on the roof',
-        need: ['Rain sensor board', '17 cm tapered mount', 'Mounting screws'],
-        say: 'Raise the rain sensor about 17 cm on the shaped mount at the roof '
+        need: ['Rain sensor board', '1 ft round rod', 'Mounting screws'],
+        say: 'Raise the rain sensor a foot up on its bare round rod at the roof '
            + 'corner, directly above the control station. Its tracks face the open '
-           + 'sky and the wide base keeps the short stand stable.',
+           + 'sky, and the rod carries it alone — there is no base under the board.',
         show: [p.sensor.group],
         view: 'sensor'
       },
