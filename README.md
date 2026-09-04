@@ -44,11 +44,39 @@ Static hosting only — publish the repository root, with no build command.
 | `smart-rain-roof-shell.js` | Outer fullscreen / shell controls |
 | `smart-rain-roof-game/` | Complete interactive 3D activity (js, css, vendor Three.js, character art) |
 | `assets/` | Hero image, character art, bundled webfonts and font licenses |
-| `favicon.svg` | Site icon |
+| `favicon.svg`, `favicon.ico` | Site icon |
+| `smart-rain-roof-game/assets/voice/` | Voice-over, one file per spoken line |
+| `tools/` | Build scripts for the voice-over and character cutouts (not needed to run the activity) |
 | `netlify.toml` | Netlify publish directory |
 | `MANIFEST-SHA256.txt` | File-integrity checksums for every shipped file |
 | `THIRD-PARTY-NOTICES.txt` | Included open-source notices |
 | `README.txt` | Plain-text copy of these instructions for offline hand-off |
+
+## Regenerating the voice-over
+
+The voice files are committed, so this is only needed after editing a spoken
+line. The generator reads each line straight out of the source that displays it
+(`index.html`, `js/ui.js`, `js/story.js`), so the audio cannot drift away from
+the words on screen. Needs `GEMINI_API_KEY` in the environment and `ffmpeg` on
+`PATH`:
+
+```bash
+python tools/build_voice.py
+```
+
+Only changed lines are re-rendered. Then confirm each clip says its line — the
+delivery notes are part of the prompt, so this catches the model reading an
+instruction aloud instead of the line:
+
+```bash
+python tools/verify_voice.py
+```
+
+After changing any shipped file, rewrite the checksums:
+
+```bash
+python tools/build_manifest.py
+```
 
 ## Verify integrity
 
@@ -64,9 +92,12 @@ endings for POSIX `sha256sum`.)
 ## Browser notes
 
 - WebGL must be enabled for the interactive 3D house.
-- Spoken dialogue uses the browser / operating-system speech engine and works offline
-  when a local voice is installed. Every spoken line is also shown on screen, so the
-  learning flow stays complete if speech is unavailable or muted.
+- Every spoken line is a pre-rendered voice-over file in
+  `smart-rain-roof-game/assets/voice/`. There is **no text-to-speech fallback**, so
+  Aisha and Arjun sound identical on every machine, including fully offline.
+  Browsers require one interaction before audio may sound; the activity always has
+  one, and a line blocked by that policy is released on the next tap. Every line is
+  also on screen, so the flow stays complete if audio is muted.
 - Fullscreen is optional (`F` key, or the fullscreen control in the HUD bar). The
   layout also adapts to laptop and tablet screens.
 

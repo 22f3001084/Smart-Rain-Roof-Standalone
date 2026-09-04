@@ -64,7 +64,7 @@ window.SRR = window.SRR || {};
     $('storyVeil').classList.add('hidden');
     $('btnStory').classList.remove('on');
     $('btnStory').setAttribute('aria-pressed', 'false');
-    if (window.speechSynthesis) { window.speechSynthesis.cancel(); }
+    SRR.stopVoice();
     if (this.c.weather.isRaining) { this.c.stopRain(); }
   };
 
@@ -85,7 +85,7 @@ window.SRR = window.SRR || {};
     $('storyStep').textContent = (this.i + 1) + ' / ' + STEPS.length;
     $('storyNext').textContent =
       this.i >= STEPS.length - 1 ? 'Start tuning!' : 'Next';
-    if (SRR.readAloud) { SRR.readAloud(s.text); }
+    SRR.playVoice('story-' + this.i);
 
     if (s.cam) { this.cam.goTo(s.cam); }
     if (s.rain === true && !this.c.weather.isRaining) { this.c.startRain(); }

@@ -4,18 +4,9 @@ window.SRR = window.SRR || {};
 (function (SRR) {
   'use strict';
 
-  /* Browser speech is deliberately tied to the user's Start/Next clicks.
-     It can be switched off without changing the visual lesson. */
-  SRR.voiceOn = true;
-  SRR.readAloud = function (text, done) {
-    if (!SRR.voiceOn || !window.speechSynthesis || !text) { return; }
-    window.speechSynthesis.cancel();
-    var line = new SpeechSynthesisUtterance(text);
-    line.rate = 1.02;
-    line.pitch = 1.08;
-    if (done) { line.onend = done; }
-    window.speechSynthesis.speak(line);
-  };
+  /* Voice-over is pre-rendered to files and played by js/voice.js. Playback is
+     deliberately tied to the learner's Start/Next clicks, and switching it off
+     never changes the visual lesson: every spoken line is also on screen. */
 
   var S = SRR.SystemState;
 
@@ -166,6 +157,7 @@ window.SRR = window.SRR || {};
     this._activePlacements = [];
     this._highlightBindings = [];
     this._stageProxies = [];
+    this._lastVoiceId = null;
     this.codePanel = null;
     this.gameState = {
       phase: 'START',
@@ -185,6 +177,7 @@ window.SRR = window.SRR || {};
     this._buildLabels();
     this._buildCallouts();
     this._bindModes();
+    this._bindFinale();
 
     var self = this;
     this.c.on('toast', function (m) { self.toast(m); });
@@ -454,7 +447,7 @@ window.SRR = window.SRR || {};
         $('landingBeat').textContent = 'The idea · 2 / 2';
         $('landingDialogue').textContent = 'Let’s raise a rain sensor above the roof. The Arduino can detect water and turn a servo to spread the folding cover.';
         $('startLabel').textContent = 'Start building';
-        SRR.readAloud($('landingDialogue').textContent);
+        SRR.playVoice('landing-2');
         return;
       }
 
@@ -530,8 +523,8 @@ window.SRR = window.SRR || {};
         SRR.voiceOn = !SRR.voiceOn;
         this.textContent = SRR.voiceOn ? 'Voice on' : 'Voice off';
         this.setAttribute('aria-pressed', String(SRR.voiceOn));
-        if (!SRR.voiceOn && window.speechSynthesis) { window.speechSynthesis.cancel(); }
-        else if (SRR.voiceOn && self.gameState.dialogueOpen) { SRR.readAloud(self._lastNarration); }
+        if (!SRR.voiceOn) { SRR.stopVoice(); }
+        else if (self.gameState.dialogueOpen) { SRR.playVoice(self._lastVoiceId); }
       });
     }
 
@@ -715,7 +708,7 @@ window.SRR = window.SRR || {};
       $('narratorDock').classList.add('hidden');
       $('storyVeil').classList.add('hidden');
       document.body.classList.remove('dialogue-active');
-      if (window.speechSynthesis) { window.speechSynthesis.cancel(); }
+      SRR.stopVoice();
     }
     $('btnBuild').classList.toggle('on', on);
     $('btnBuild').setAttribute('aria-pressed', String(on));
@@ -734,7 +727,7 @@ window.SRR = window.SRR || {};
     $('narratorDock').classList.remove('show-aisha', 'show-arjun');
     $('storyVeil').classList.add('hidden');
     document.body.classList.remove('dialogue-active');
-    if (window.speechSynthesis) { window.speechSynthesis.cancel(); }
+    SRR.stopVoice();
 
     var step = this.build.step();
     var added = this.build.placeCurrent();
@@ -779,7 +772,7 @@ window.SRR = window.SRR || {};
     $('buildContinue').classList.add('hidden');
     $('storyVeil').classList.add('hidden');
     document.body.classList.remove('dialogue-active');
-    if (window.speechSynthesis) { window.speechSynthesis.cancel(); }
+    SRR.stopVoice();
     $('btnBuild').classList.remove('on');
     $('btnBuild').setAttribute('aria-pressed', 'false');
     $('btnBuild').textContent = 'Rebuild from start';
@@ -894,6 +887,7 @@ window.SRR = window.SRR || {};
       $('infoHubTitle').textContent = 'Washing protected';
       $('infoHubSummary').textContent = 'The sensor detected rain and the roof closed automatically.';
       this.cam.goTo('court');
+      this.showFinale();
       Array.prototype.forEach.call(document.querySelectorAll('#flow span'), function (el) {
         el.classList.remove('active');
         el.classList.add('passed');
@@ -905,9 +899,46 @@ window.SRR = window.SRR || {};
     }
   };
 
+  /* Mission complete. Both makers step in, thank the learner and say so out
+     loud; the proof panel is waiting behind the card. */
+  UIController.prototype._bindFinale = function () {
+    var self = this;
+    var replay = $('finaleReplay');
+    var close = $('finaleClose');
+    if (replay) {
+      replay.addEventListener('click', function () { SRR.playVoice('finale'); });
+    }
+    if (close) {
+      close.addEventListener('click', function () { self.hideFinale(); });
+    }
+    document.addEventListener('keydown', function (event) {
+      if (event.key === 'Escape') { self.hideFinale(); }
+    });
+  };
+
+  UIController.prototype.showFinale = function () {
+    var panel = $('finale');
+    if (!panel) { return; }
+    panel.classList.remove('hidden');
+    // One frame later, so the entry transition has a state to move from.
+    window.requestAnimationFrame(function () { panel.classList.add('on'); });
+    SRR.playVoice('finale');
+    var close = $('finaleClose');
+    if (close && typeof close.focus === 'function') { close.focus({ preventScroll: true }); }
+  };
+
+  UIController.prototype.hideFinale = function () {
+    var panel = $('finale');
+    if (!panel || panel.classList.contains('hidden')) { return; }
+    SRR.stopVoice();
+    panel.classList.remove('on');
+    window.setTimeout(function () { panel.classList.add('hidden'); }, 320);
+  };
+
   UIController.prototype.restartMission = function () {
     this._cancelPlacement();
-    if (window.speechSynthesis) { window.speechSynthesis.cancel(); }
+    this.hideFinale();
+    SRR.stopVoice();
     if (this.codePanel) { this.codePanel.reset(); this.codePanel.close(); }
     $('story').classList.add('hidden');
     $('codeReport').innerHTML = '';
@@ -976,11 +1007,12 @@ window.SRR = window.SRR || {};
     $('narratorStage').textContent = 'Build · ' + (this.build.index + 1) + ' / ' + this.build.count();
     $('narratorText').textContent = line;
     this._lastNarration = line;
+    this._lastVoiceId = 'build-' + this.build.index;
     $('dialogueNext').disabled = false;
     $('dialogueNext').textContent = this.build.index === 0
       ? 'See the starting setup'
       : (this.build.atEnd() ? 'Check the finished build' : 'Build this part');
-    SRR.readAloud(this._lastNarration);
+    SRR.playVoice(this._lastVoiceId);
     window.requestAnimationFrame(function () {
       var next = $('dialogueNext');
       if (typeof next.focus === 'function') { next.focus({ preventScroll: true }); }

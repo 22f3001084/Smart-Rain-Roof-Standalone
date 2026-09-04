@@ -12,3 +12,7 @@ node_modules/
 
 # build output
 *.zip
+
+# python
+__pycache__/
+*.pyc

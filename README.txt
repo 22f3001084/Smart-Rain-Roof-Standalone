@@ -20,9 +20,11 @@ packed with index.html at its root, so the deployed home page opens directly.
 
 BROWSER NOTES
 - WebGL must be enabled for the interactive 3D house.
-- Spoken dialogue uses the browser/operating-system speech engine and works offline
-  when a local voice is installed. Every spoken line is also shown on screen, so
-  the learning flow remains complete if speech is unavailable or muted.
+- Every spoken line is a voice-over file inside the package (assets/voice/). No
+  text-to-speech engine is used, so the two characters sound the same on every
+  machine, including offline. Sound needs one tap or click first, which the
+  activity always has. Every line is also shown on screen, so the learning flow
+  remains complete if audio is muted.
 - Fullscreen is optional. The layout also adapts to laptop and tablet screens.
 
 PACKAGE MAP
@@ -32,6 +34,7 @@ PACKAGE MAP
 - smart-rain-roof-shell.js           Outer fullscreen/shell controls
 - smart-rain-roof-game/              Complete interactive 3D activity
 - assets/                            Hero, character, and bundled font assets
+- smart-rain-roof-game/assets/voice/ Character voice-over, one file per line
 - favicon.svg                        Site icon
 - MANIFEST-SHA256.txt                File-integrity checksums
 - THIRD-PARTY-NOTICES.txt            Included open-source notices

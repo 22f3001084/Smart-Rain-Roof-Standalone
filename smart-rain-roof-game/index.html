@@ -4,11 +4,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Smart Rain Protection House</title>
+<link rel="icon" type="image/svg+xml" href="../favicon.svg">
 <link rel="stylesheet" href="../assets/fonts/local-fonts.css">
 <link rel="stylesheet" href="css/style.css?v=20260904-staged1">
 <link rel="stylesheet" href="css/skai-embed.css?v=20260904-staged6">
 <link rel="stylesheet" href="css/landing.css?v=20260904-conversation3">
-<link rel="stylesheet" href="css/conversation.css?v=20260904-staged7">
+<link rel="stylesheet" href="css/conversation.css?v=20260904-finale1">
 </head>
 <body>
 
@@ -306,6 +307,21 @@ Servo awning;
   </section>
 </div>
 
+<!-- Mission complete: both makers step forward and thank the learner. -->
+<section id="finale" class="finale hidden" role="dialog" aria-modal="true" aria-labelledby="finaleTitle">
+  <img class="finale-cast finale-aisha" src="assets/characters/aisha-happy.png" alt="" aria-hidden="true">
+  <img class="finale-cast finale-arjun" src="assets/characters/arjun-happy.png" alt="" aria-hidden="true">
+  <div class="finale-card">
+    <p class="finale-kicker">Mission complete</p>
+    <h2 id="finaleTitle">Thank you &mdash; we did it!</h2>
+    <p id="finaleLine">Thank you! The rain came, the sensor felt it, and your roof covered the washing just in time. We could never have finished this build without you.</p>
+    <div class="finale-actions">
+      <button id="finaleReplay" class="finale-btn ghost" type="button">Hear it again</button>
+      <button id="finaleClose" class="finale-btn" type="button">See the proof</button>
+    </div>
+  </div>
+</section>
+
 <div id="toast" class="hidden" role="status"></div>
 <div id="labels" aria-hidden="true"></div>
 <div id="partStage" aria-live="polite"></div>
@@ -325,7 +341,9 @@ Servo awning;
 <script src="js/weather.js?v=20260902"></script>
 <script src="js/simulation.js?v=20260902b"></script>
 <script src="js/build.js?v=20260904-rod1"></script>
-<script src="js/ui.js?v=20260904-rod1"></script>
+<script src="js/voice-manifest.js?v=20260904-finale1"></script>
+<script src="js/voice.js?v=20260904-finale2"></script>
+<script src="js/ui.js?v=20260904-finale1"></script>
 <script src="js/arduino-code.js?v=20260904-three-trials"></script>
 <script src="js/story.js?v=20260904-six-stages"></script>
 <script src="js/main.js?v=20260904-staged1"></script>
